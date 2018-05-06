@@ -1,0 +1,22 @@
+Package: fishboot
+Type: Package
+Title: Bootstrap-based methods for the study of fish stocks and aquatic populations
+Version: 0.1
+Author: Ralf Schwamborn, Tobias K. Mildenberger, Marc H. Taylor
+Maintainer: Ralf Schwamborn <email@email.com>
+Description: The fishboot package contains a suite of new bootstrap-based models and software tools for the study of fish stocks and aquatic populations. 
+Depends: R (>= 3.4.2)
+Imports:
+    TropFishR,
+    GenSA,
+    GA,
+    propagate,
+    parallel,
+    doParallel,
+    ks
+License: GPL-3
+BugReports: https://github.com/rschwamborn/fishboot/issues
+URL: https://github.com/rschwamborn/fishboot
+Encoding: UTF-8
+LazyData: FALSE
+RoxygenNote: 6.0.1

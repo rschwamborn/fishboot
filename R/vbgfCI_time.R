@@ -1,0 +1,158 @@
+#' VBGF plot and CI
+#'
+#' @param res list of class `lfqBoot`
+#' @param CI xx
+#' @param agemax xx
+#' @param add_legend xx
+#' @param add_max_dens_legend xx
+#' @param n.eval.points xx
+#' @param xlab xx
+#' @param ylab xx
+#' @param perm.col xx
+#' @param perm.lwd xx
+#' @param ci.col xx
+#' @param ci.lty xx
+#' @param ci.lwd xx
+#' @param maxd.col xx
+#' @param maxd.lty xx
+#' @param maxd.lwd xx
+#'
+#' @return plot and data.frame with CI info
+#' @export
+#'
+#' @examples
+#'
+#' data(alba_boot)
+#' CIinfo <- vbgfCI_time(
+#'   res = alba_boot,
+#'   agemax = 2, CI = 95,
+#'   perm.col = adjustcolor("grey50",0.2)
+#' )
+#'
+#'
+vbgfCI_time <- function(res, CI = 95, agemax = NULL,
+  add_legend = TRUE, add_max_dens_legend = TRUE,
+  n.eval.points = NULL, xlab = "Relative time", ylab = "Length",
+  perm.col = adjustcolor("grey50",0.1), perm.lwd = 1,
+  ci.col = 1, ci.lty = 2, ci.lwd = 1,
+  maxd.col = 1, maxd.lty = 1, maxd.lwd = 2
+){
+
+  res <- res$bootRaw
+
+  if(is.null(agemax)){agemax <- max(ceiling((1/-res$K)*log(1-((res$Linf*0.95)/res$Linf))))}
+
+  # expand ci line attributes to length of CI (if needed, values are recycled)
+  ci.col <- rep_len(ci.col, length(CI))
+  ci.lty <- rep_len(ci.lty, length(CI))
+  ci.lwd <- rep_len(ci.lwd, length(CI))
+
+  # remove phi' if included in res
+  phiLcol <- which(names(res) == "phiL")
+  if(length(phiLcol > 0)){
+    x <- res[,-phiLcol]
+  } else {
+    x <- res
+  }
+  d <- ncol(x)
+
+  # First a fitting round to look for shifts in t_anchor
+  age = seq(0, agemax, 0.01)
+  Lt0 <- matrix(NaN, nrow=length(age), ncol=nrow(x))
+  Lt_minus <- matrix(NaN, nrow=length(age), ncol=nrow(x))
+  Lt_plus <- matrix(NaN, nrow=length(age), ncol=nrow(x))
+  for(i in seq(ncol(Lt0))){
+    par0 <- par_minus <- par_plus <- as.list(x[i,])
+    par_minus$t_anchor <- par0$t_anchor-1
+    par_plus$t_anchor <- par0$t_anchor+1
+    Lt0[,i] <- TropFishR::VBGF(param = par0, t = age)
+    Lt_minus[,i] <- TropFishR::VBGF(param = par_minus, t = age)
+    Lt_plus[,i] <- TropFishR::VBGF(param = par_plus, t = age)
+  }
+
+  # replace negative lengths with NA
+  Lt0 <- replace(Lt0, Lt0<0, NaN)
+  Lt_minus <- replace(Lt_minus, Lt_minus<0, NaN)
+  Lt_plus <- replace(Lt_plus, Lt_plus<0, NaN)
+
+  # determine if a positive or negative shift improves overall covariance for each permutation
+  cov0 <- cov(Lt0, use = "pair")
+  shift <- 0 * seq(ncol(Lt0))
+  for(i in seq(ncol(Lt0))){
+    cov_minus <- cov(x = Lt_minus[,i], y = Lt0, use = "pair")
+    cov_plus <- cov(x = Lt_plus[,i], y = Lt0, use = "pair")
+    shift[i] <- c(0,-1,1)[which.max(c(sum(cov0[i,]), sum(cov_minus), sum(cov_plus)))]
+  }
+
+  # fixed predictions
+  agenew <- seq(0+min(shift), agemax+max(shift), 0.01)
+  Lt <- matrix(NaN, nrow=length(agenew), ncol=nrow(x))
+  for(i in seq(ncol(Lt))){
+    par0 <- as.list(x[i,])
+    par0$t_anchor <- par0$t_anchor + shift[i]
+    Lt[,i] <- TropFishR::VBGF(param = par0, t = agenew)
+  }
+
+  for(i in seq(ncol(Lt))){
+    if(i == 1) {
+      plot(agenew, Lt[,i], t="n",
+        xlim = c(min(x$t_anchor+shift), max(agenew))+c(-0.1,0),
+        ylim = c(0,max(Lt)*1.05),
+        xlab = xlab, ylab = ylab,
+        xaxs = "i", yaxs = "i"
+      )
+    }
+    lines(agenew, Lt[,i], col = perm.col, lwd = perm.lwd)
+  }
+  box()
+
+  # multivariate kernel density estimate for max. density
+  H <- ks::Hpi(x, nstage = 1)
+  fhat <- ks::kde(x = x, H = H, eval.points = x)
+
+  # maximum density
+  max_dens <- fhat$eval.points[which.max(fhat$estimate),] # maximum density
+
+  # predict density estimate of original data
+  x$estimate <- fhat$estimate
+
+
+  # determin which resamples are in the CI
+  limCI <- vector(mode = "list", length(CI))
+  inCI <- vector(mode = "list", length(CI))
+  names(inCI) <- names(limCI) <- paste0("CI", CI)
+  for(j in seq(limCI)){
+    inCI[[j]] <- x$estimate > quantile(x$estimate, probs = (100-CI[j])/100 )
+    limCI[[j]] <- data.frame(t = agenew, min = NaN, max = NaN)
+    for(i in seq(agenew)){
+      limCI[[j]]$min[i] <- min(Lt[i, which(inCI[[j]]) ], na.rm = TRUE)
+      limCI[[j]]$max[i] <- max(Lt[i, which(inCI[[j]]) ], na.rm = TRUE)
+    }
+    lines(max ~ t, limCI[[j]], col = ci.col[j], lwd = ci.lwd[j], lty = ci.lty[j])
+    lines(min ~ t, limCI[[j]], col = ci.col[j], lwd = ci.lwd[j], lty = ci.lty[j])
+  }
+  inCI <- as.data.frame(inCI)
+
+  lines(
+    agenew, TropFishR::VBGF(param = as.list(max_dens), t = agenew),
+    col = maxd.col, lwd = maxd.lwd, lty = maxd.lty
+  )
+
+  if(add_legend){
+    legend("bottomright", legend = c(paste0("CI = ", CI, "%"), "Max. Dens."),
+      bty = "n", col = c(ci.col, maxd.col), lty = c(ci.lty, maxd.lty),
+      lwd = c(ci.lwd, maxd.lwd)
+    )
+  }
+
+  if(add_max_dens_legend){
+    legend("topleft",
+      legend = c(paste0(names(max_dens), " = ", sprintf("%.2f", round(max_dens,2) ))),
+      bty = "n", title = "Max. Dens. \nparameters:",
+      inset = c(0,0.1)
+    )
+  }
+
+  RES <- list(limCI = limCI, inCI = inCI)
+  return(RES)
+}
