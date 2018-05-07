@@ -18,7 +18,11 @@
 #' @param maxd.lty Line type maximum density line. See `?par`.
 #' @param maxd.lwd Line width maximum density line. See `?par`.
 #'
-#' @return plot and data.frame with CI info
+#' @return plot and list containing: `limCI` - data.frame with CI limits by time,
+#'   `inCi` -  data.frame with logical values defining whether bootstrapping samples
+#'   are within each of the defined CIs, `density` - the multivariate kernel density
+#'   estimates for each sample, and `max_dens` is a list with the VBGF parameter
+#'   combination having the maximum density estimate.
 #' @export
 #'
 #' @examples
@@ -37,6 +41,23 @@
 #'   ci.lty = 1, ci.lwd = 2, ci.col = c("red", "orange"),
 #'   perm.col = adjustcolor("grey50",0.2)
 #' )
+#'
+#' # using output in lfq plot (see ?TropFishR::plot.lfq)
+#' library(TropFishR)
+#' data(alba)
+#' alba <- lfqRestructure(alba, MA = 7)
+#' plot(alba, Fname = "rcounts")
+#' for(i in seq(nrow(alba_boot$bootRaw))){
+#'   x <- as.list(alba_boot$bootRaw[i,])
+#'   tmp <- lfqFitCurves(
+#'     lfq = alba, par = x,
+#'     col = adjustcolor("grey50",0.1), draw = TRUE, lty=1
+#'   )
+#' }
+#' tmp <- lfqFitCurves(lfq = alba, par = CIinfo$max_dens,
+#'   col = 1, draw = TRUE, lty=1, lwd=2
+#' )
+#'
 #'
 #'
 vbgfCI_time <- function(res, CI = 95, agemax = NULL,
@@ -162,6 +183,6 @@ vbgfCI_time <- function(res, CI = 95, agemax = NULL,
     )
   }
 
-  RES <- list(limCI = limCI, inCI = inCI)
+  RES <- list(limCI = limCI, inCI = inCI, density = x$estimate, max_dens = as.list(max_dens))
   return(RES)
 }
