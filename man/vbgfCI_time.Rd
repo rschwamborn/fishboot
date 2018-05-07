@@ -5,43 +5,42 @@
 \title{VBGF plot and CI}
 \usage{
 vbgfCI_time(res, CI = 95, agemax = NULL, add_legend = TRUE,
-  add_max_dens_legend = TRUE, n.eval.points = NULL,
-  xlab = "Relative time", ylab = "Length",
+  add_max_dens_legend = TRUE, xlab = "Relative time", ylab = "Length",
   perm.col = adjustcolor("grey50", 0.1), perm.lwd = 1, ci.col = 1,
   ci.lty = 2, ci.lwd = 1, maxd.col = 1, maxd.lty = 1, maxd.lwd = 2)
 }
 \arguments{
 \item{res}{list of class `lfqBoot`}
 
-\item{CI}{xx}
+\item{CI}{vector. Confidence interval levels to plot}
 
-\item{agemax}{xx}
+\item{agemax}{numeric. Maximum number of years to project.}
 
-\item{add_legend}{xx}
+\item{add_legend}{logical. Should CI and max. density legend be added
+(Default: `add_legend = TRUE`).}
 
-\item{add_max_dens_legend}{xx}
+\item{add_max_dens_legend}{logical. Should maximum density line be added
+(Default: `add_max_dens_legend = TRUE`).}
 
-\item{n.eval.points}{xx}
+\item{xlab}{Label for x-axis}
 
-\item{xlab}{xx}
+\item{ylab}{Label for y-axis}
 
-\item{ylab}{xx}
+\item{perm.col}{Color for each resample estimate line. See `?par`.}
 
-\item{perm.col}{xx}
+\item{perm.lwd}{Line width for each resample estimate line. See `?par`.}
 
-\item{perm.lwd}{xx}
+\item{ci.col}{Color for CI line. See `?par`.}
 
-\item{ci.col}{xx}
+\item{ci.lty}{Line type for CI line. See `?par`.}
 
-\item{ci.lty}{xx}
+\item{ci.lwd}{Line width for CI line. See `?par`.}
 
-\item{ci.lwd}{xx}
+\item{maxd.col}{Color for maximum density line. See `?par`.}
 
-\item{maxd.col}{xx}
+\item{maxd.lty}{Line type maximum density line. See `?par`.}
 
-\item{maxd.lty}{xx}
-
-\item{maxd.lwd}{xx}
+\item{maxd.lwd}{Line width maximum density line. See `?par`.}
 }
 \value{
 plot and data.frame with CI info
@@ -55,6 +54,14 @@ data(alba_boot)
 CIinfo <- vbgfCI_time(
   res = alba_boot,
   agemax = 2, CI = 95,
+  perm.col = adjustcolor("grey50",0.2)
+)
+
+# plot more CI levels
+CIinfo <- vbgfCI_time(
+  res = alba_boot,
+  agemax = 2, CI = c(95, 50),
+  ci.lty = 1, ci.lwd = 2, ci.col = c("red", "orange"),
   perm.col = adjustcolor("grey50",0.2)
 )
 

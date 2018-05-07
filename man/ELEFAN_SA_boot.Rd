@@ -54,9 +54,7 @@ following default values are used:
   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 1);
 }}
 
-\item{parallel}{logical; should parallelized computing be used. This differs from the
-`parallel` argument in `ELEFAN_GA` in that it is not used within the `ga` function for
-calculation at the population level, but rather for permutations. Depending on platform
+\item{parallel}{logical; should parallelized computing be used. Depending on platform
 operating system, the argument `clusterType` can be adjusted (see argument description for
 details). (Default: `parallel = TRUE`)}
 
@@ -76,7 +74,7 @@ records the progress of the permutation completions.}
 \item{maxit}{numeric; default: maxit = NULL.}
 
 \item{MA}{number indicating over how many length classes the moving average
-should be performed (default: 5, for more information see \link{lfqRestructure})}
+should be performed (default: 5, for more information see \code{\link[TropFishR]{lfqRestructure}}.}
 
 \item{addl.sqrt}{logical. Should counts be square root transformed prior to restructuring.}
 
@@ -91,11 +89,13 @@ variation due only to the search algorithm.}
 \item{seed}{seed value for random number reproducibility (Default: NULL)}
 }
 \value{
-a data.frame of fitted VBGF parameters (columns) by permutation (rows).
+a list of class `lfqBoot` containing 2 levels: `$bootRaw` - a data.frame of fitted VBGF parameters
+(columns) by resampling (rows), `$seed` - a vector of seed values set prior to each resampling
+call to `lfqResample`.
 }
 \description{
 `ELEFAN_SA_boot` performs a bootstrapped fitting of
-  von Bertalanffy growth function (VBGF) via the \link{ELEFAN_SA} function.
+  von Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_SA}} function.
   Most of the arguments are simply passed to the function within many
   permutations (resampling) of the original lfq data.
 }

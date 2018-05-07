@@ -1,21 +1,22 @@
 #' VBGF plot and CI
 #'
 #' @param res list of class `lfqBoot`
-#' @param CI xx
-#' @param agemax xx
-#' @param add_legend xx
-#' @param add_max_dens_legend xx
-#' @param n.eval.points xx
-#' @param xlab xx
-#' @param ylab xx
-#' @param perm.col xx
-#' @param perm.lwd xx
-#' @param ci.col xx
-#' @param ci.lty xx
-#' @param ci.lwd xx
-#' @param maxd.col xx
-#' @param maxd.lty xx
-#' @param maxd.lwd xx
+#' @param CI vector. Confidence interval levels to plot
+#' @param agemax numeric. Maximum number of years to project.
+#' @param add_legend logical. Should CI and max. density legend be added
+#'   (Default: `add_legend = TRUE`).
+#' @param add_max_dens_legend logical. Should maximum density line be added
+#'   (Default: `add_max_dens_legend = TRUE`).
+#' @param xlab Label for x-axis
+#' @param ylab Label for y-axis
+#' @param perm.col Color for each resample estimate line. See `?par`.
+#' @param perm.lwd Line width for each resample estimate line. See `?par`.
+#' @param ci.col Color for CI line. See `?par`.
+#' @param ci.lty Line type for CI line. See `?par`.
+#' @param ci.lwd Line width for CI line. See `?par`.
+#' @param maxd.col Color for maximum density line. See `?par`.
+#' @param maxd.lty Line type maximum density line. See `?par`.
+#' @param maxd.lwd Line width maximum density line. See `?par`.
 #'
 #' @return plot and data.frame with CI info
 #' @export
@@ -29,10 +30,18 @@
 #'   perm.col = adjustcolor("grey50",0.2)
 #' )
 #'
+#' # plot more CI levels
+#' CIinfo <- vbgfCI_time(
+#'   res = alba_boot,
+#'   agemax = 2, CI = c(95, 50),
+#'   ci.lty = 1, ci.lwd = 2, ci.col = c("red", "orange"),
+#'   perm.col = adjustcolor("grey50",0.2)
+#' )
+#'
 #'
 vbgfCI_time <- function(res, CI = 95, agemax = NULL,
   add_legend = TRUE, add_max_dens_legend = TRUE,
-  n.eval.points = NULL, xlab = "Relative time", ylab = "Length",
+  xlab = "Relative time", ylab = "Length",
   perm.col = adjustcolor("grey50",0.1), perm.lwd = 1,
   ci.col = 1, ci.lty = 2, ci.lwd = 1,
   maxd.col = 1, maxd.lty = 1, maxd.lwd = 2

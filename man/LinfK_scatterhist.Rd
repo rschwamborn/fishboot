@@ -10,7 +10,7 @@ LinfK_scatterhist(res, Linf.breaks = "Sturges", K.breaks = "Sturges",
   dens.contour = TRUE, probs = c(25, 50, 75, 95), phi.contour = FALSE,
   phi.levels = NULL, phi.contour.col = 8, phi.contour.lty = 2,
   phi.contour.lwd = 1, phi.contour.labcex = 0.75, pt.pch = 16,
-  pt.col = rgb(0, 0, 0, 0.25), pt.cex = 0.5, pt.bg = 4,
+  pt.col = adjustcolor(1, 0.25), pt.cex = 0.5, pt.bg = 4,
   xlab = expression(italic("L")[infinity]), ylab = expression(italic("K")),
   xlim = NULL, ylim = NULL)
 }
@@ -23,43 +23,53 @@ LinfK_scatterhist(res, Linf.breaks = "Sturges", K.breaks = "Sturges",
 
 \item{gridsize}{vector. 2 values for defining the resolution of the grid}
 
-\item{H}{object from `ks::H`}
+\item{H}{object from \code{\link[ks]{Hpi}} (Default: `ks::Hpi(res[,c("Linf", "K")])`)}
 
-\item{shading}{xx}
+\item{shading}{logical. Should 2d field of density estimates be colored with colors
+specified by `shading.cols` argument (Default: `shading = TRUE`).}
 
-\item{shading.cols}{xx}
+\item{shading.cols}{vector. Colors for background shading of 2d field of density estimates
+(Default: `shading.cols = colorRampPalette(c("white", blues9))(50)`).}
 
-\item{dens.contour}{xx}
+\item{dens.contour}{logical. Should contour lines be added (Default: `dens.contour = TRUE`)}
 
-\item{probs}{xx}
+\item{probs}{vector. Density probability cutoffs to be plotted by contours when
+`dens.contour = TRUE` (Default: `probs = c(25,50,75,95)`).}
 
-\item{phi.contour}{xx}
+\item{phi.contour}{logical. Should phi prime isolines be displayed
+(Default: `phi.contour = FALSE`)}
 
-\item{phi.levels}{xx}
+\item{phi.levels}{vector. Phi prime values to display when `phi.contour = TRUE`
+(Default: `phi.levels = NULL`). When not defined (`phi.levels = NULL`), the default
+levels are chosen automatically by the \code{\link[graphics]{contour}} function.}
 
-\item{phi.contour.col}{xx}
+\item{phi.contour.col}{vector. Color to use for phi prime contours.
+Passed to \code{\link[graphics]{contour}}.}
 
-\item{phi.contour.lty}{xx}
+\item{phi.contour.lty}{vector. Line type to use for phi prime contours.
+Passed to \code{\link[graphics]{contour}}.}
 
-\item{phi.contour.lwd}{xx}
+\item{phi.contour.lwd}{vector. Line width to use for phi prime contours.
+Passed to \code{\link[graphics]{contour}}.}
 
-\item{phi.contour.labcex}{xx}
+\item{phi.contour.labcex}{vector. Labels for the contour lines.
+Passed to \code{\link[graphics]{contour}}.}
 
-\item{pt.pch}{xx}
+\item{pt.pch}{pch value to use for resampling points}
 
-\item{pt.col}{xx}
+\item{pt.col}{color to use for resampling points}
 
-\item{pt.cex}{xx}
+\item{pt.cex}{size value to use for resampling points}
 
-\item{pt.bg}{xx}
+\item{pt.bg}{background color to use for resampling points}
 
-\item{xlab}{xx}
+\item{xlab}{label for x-axis}
 
-\item{ylab}{xx}
+\item{ylab}{lavel for y axis}
 
-\item{xlim}{xx}
+\item{xlim}{limits for x-axis}
 
-\item{ylim}{xx}
+\item{ylim}{limits for y-axis}
 }
 \value{
 plot

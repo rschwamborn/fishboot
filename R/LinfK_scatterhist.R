@@ -4,25 +4,35 @@
 #' @param Linf.breaks vector. Breaks for Linf histogram.
 #' @param K.breaks vector. Breaks for K histogram.
 #' @param gridsize vector. 2 values for defining the resolution of the grid
-#' @param H object from `ks::H`
-#' @param shading xx
-#' @param shading.cols xx
-#' @param dens.contour xx
-#' @param probs xx
-#' @param phi.contour xx
-#' @param phi.levels xx
-#' @param phi.contour.col xx
-#' @param phi.contour.lty xx
-#' @param phi.contour.lwd xx
-#' @param phi.contour.labcex xx
-#' @param pt.pch xx
-#' @param pt.col xx
-#' @param pt.cex xx
-#' @param pt.bg xx
-#' @param xlab xx
-#' @param ylab xx
-#' @param xlim xx
-#' @param ylim xx
+#' @param H object from \code{\link[ks]{Hpi}} (Default: `ks::Hpi(res[,c("Linf", "K")])`)
+#' @param shading logical. Should 2d field of density estimates be colored with colors
+#'   specified by `shading.cols` argument (Default: `shading = TRUE`).
+#' @param shading.cols vector. Colors for background shading of 2d field of density estimates
+#'   (Default: `shading.cols = colorRampPalette(c("white", blues9))(50)`).
+#' @param dens.contour logical. Should contour lines be added (Default: `dens.contour = TRUE`)
+#' @param probs vector. Density probability cutoffs to be plotted by contours when
+#'   `dens.contour = TRUE` (Default: `probs = c(25,50,75,95)`).
+#' @param phi.contour logical. Should phi prime isolines be displayed
+#'   (Default: `phi.contour = FALSE`)
+#' @param phi.levels vector. Phi prime values to display when `phi.contour = TRUE`
+#'   (Default: `phi.levels = NULL`). When not defined (`phi.levels = NULL`), the default
+#'   levels are chosen automatically by the \code{\link[graphics]{contour}} function.
+#' @param phi.contour.col vector. Color to use for phi prime contours.
+#'   Passed to \code{\link[graphics]{contour}}.
+#' @param phi.contour.lty vector. Line type to use for phi prime contours.
+#'   Passed to \code{\link[graphics]{contour}}.
+#' @param phi.contour.lwd vector. Line width to use for phi prime contours.
+#'   Passed to \code{\link[graphics]{contour}}.
+#' @param phi.contour.labcex vector. Labels for the contour lines.
+#'   Passed to \code{\link[graphics]{contour}}.
+#' @param pt.pch pch value to use for resampling points
+#' @param pt.col color to use for resampling points
+#' @param pt.cex size value to use for resampling points
+#' @param pt.bg background color to use for resampling points
+#' @param xlab label for x-axis
+#' @param ylab lavel for y axis
+#' @param xlim limits for x-axis
+#' @param ylim limits for y-axis
 #'
 #' @return plot
 #' @export
@@ -38,8 +48,8 @@ LinfK_scatterhist = function(
   dens.contour = TRUE, probs = c(25,50,75,95),
   phi.contour = FALSE, phi.levels = NULL,
   phi.contour.col = 8, phi.contour.lty = 2, phi.contour.lwd = 1, phi.contour.labcex = 0.75,
-  pt.pch = 16, pt.col = rgb(0,0,0,0.25), pt.cex = 0.5, pt.bg = 4,
-  xlab=expression(italic("L")[infinity]), ylab=expression(italic("K")),
+  pt.pch = 16, pt.col = adjustcolor(1, 0.25), pt.cex = 0.5, pt.bg = 4,
+  xlab = expression(italic("L")[infinity]), ylab = expression(italic("K")),
   xlim = NULL, ylim = NULL
 ){
 
@@ -48,8 +58,10 @@ LinfK_scatterhist = function(
   # Called internally
   add_phiprime <- function(gridsize = 20, ...){
     usr <- par()$usr
-    Linf = seq(usr[1], usr[2], length.out = gridsize)
-    K = seq(usr[3], usr[4], length.out = gridsize)
+    Linf <- seq(usr[1], usr[2], length.out = gridsize)
+    K <- seq(usr[3], usr[4], length.out = gridsize)
+    Linf <- Linf[which(Linf>0)]
+    K <- K[which(K>0)]
     grd <- expand.grid(
       Linf = Linf,
       K = K

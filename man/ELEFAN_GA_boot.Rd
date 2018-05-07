@@ -45,9 +45,10 @@ following default values are used:
 }}
 
 \item{parallel}{logical; should parallelized computing be used. This differs from the
-`parallel` argument in `ELEFAN_GA` in that it is not used within the `ga` function for
-calculation at the population level, but rather for permutations. Depending on platform
-operating system, the argument `clusterType` can be adjusted (see argument description for
+`parallel` argument in \code{\link[TropFishR]{ELEFAN_GA}} in that it is not used
+within the \code{\link[GA]{ga}} function for calculation at the population level,
+but rather for each resampling. Depending on platform operating system,
+the argument `clusterType` can be adjusted (see argument description for
 details). (Default: `parallel = TRUE`)}
 
 \item{nresamp}{numeric; the number of permutations to run (Default: `nresamp = 10`)}
@@ -78,7 +79,7 @@ Typically this is a large value.  (Default: `pcrossover = 0.8`)}
 By default the top 5\% individuals will survive at each iteration.}
 
 \item{MA}{number indicating over how many length classes the moving average
-should be performed (default: 5, for more information see \link{lfqRestructure})}
+should be performed (default: 5, for more information see \code{\link[TropFishR]{lfqRestructure}}}
 
 \item{addl.sqrt}{logical. Should counts be square root transformed prior to restructuring.}
 
@@ -93,13 +94,15 @@ variation due only to the search algorithm.}
 \item{seed}{seed value for random number reproducibility (Default: NULL)}
 }
 \value{
-a data.frame of fitted VBGF parameters (columns) by permutation (rows).
+a list of class `lfqBoot` containing 2 levels: `$bootRaw` - a data.frame of fitted VBGF parameters
+(columns) by resampling (rows), `$seed` - a vector of seed values set prior to each resampling
+call to `lfqResample`.
 }
 \description{
 `ELEFAN_GA_boot` performs a bootstrapped fitting of
-  von Bertalanffy growth function (VBGF) via the \link{ELEFAN_GA} function. Most of the arguments
-  are simply passed to the function within many permutations (resampling) of the original
-  lfq data.
+  von Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_GA}} function.
+  Most of the arguments are simply passed to the function within many permutations
+  (resampling) of the original lfq data.
 }
 \examples{
 \donttest{
