@@ -46,7 +46,7 @@
 #' library(TropFishR)
 #' data(alba)
 #' alba <- lfqRestructure(alba, MA = 7)
-#' plot(alba, Fname = "rcounts")
+#' plot(alba, Fname = "rcounts", ylim=c(0,15))
 #' for(i in seq(nrow(alba_boot$bootRaw))){
 #'   x <- as.list(alba_boot$bootRaw[i,])
 #'   tmp <- lfqFitCurves(
@@ -54,9 +54,27 @@
 #'     col = adjustcolor("grey50",0.1), draw = TRUE, lty=1
 #'   )
 #' }
-#' tmp <- lfqFitCurves(lfq = alba, par = CIinfo$max_dens,
-#'   col = 1, draw = TRUE, lty=1, lwd=2
-#' )
+#' for(j in seq(CIinfo$limCI)){
+#'   usr <- par()$usr
+#'   tmax <- diff(range(CIinfo$limCI[[j]]$t))
+#'   date_start <- as.Date(usr[1], origin = "1970-01-01")
+#'   yeardec_start <- date2yeardec(date_start)
+#'   date_end <- as.Date(usr[2], origin = "1970-01-01")
+#'   yeardec_end <- date2yeardec(date_end)
+#'   years <- (floor(yeardec_start)-tmax):ceiling(yeardec_end)
+#'
+#'   for(y in years){
+#'     time <- y + CIinfo$limCI[[j]]$t
+#'     time <- as.numeric(yeardec2date(time))
+#'     lines(time, CIinfo$limCI[[j]]$min, lty = 2, col=2+j)
+#'     lines(time, CIinfo$limCI[[j]]$max, lty = 2, col=2+j)
+#'   }
+#'
+#'   tmp <- lfqFitCurves(lfq = alba, par = CIinfo$max_dens,
+#'     col = 1, draw = TRUE, lty=1, lwd=2
+#'   )
+#' }
+#'
 #'
 #'
 #'

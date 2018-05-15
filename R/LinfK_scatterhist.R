@@ -4,7 +4,7 @@
 #' @param Linf.breaks vector. Breaks for Linf histogram.
 #' @param K.breaks vector. Breaks for K histogram.
 #' @param gridsize vector. 2 values for defining the resolution of the grid
-#' @param H object from \code{\link[ks]{Hpi}} (Default: `ks::Hpi(res[,c("Linf", "K")])`)
+#' @param H object from \code{\link[ks]{Hpi}} (Default: `H = ks::Hpi(res[,c("Linf", "K")])`)
 #' @param shading logical. Should 2d field of density estimates be colored with colors
 #'   specified by `shading.cols` argument (Default: `shading = TRUE`).
 #' @param shading.cols vector. Colors for background shading of 2d field of density estimates
@@ -43,7 +43,7 @@
 #'
 LinfK_scatterhist = function(
   res, Linf.breaks = "Sturges", K.breaks = "Sturges",
-  gridsize = rep(151, 2), H = ks::Hpi(res[,c("Linf", "K")]),
+  gridsize = rep(151, 2), H = NULL,
   shading = TRUE, shading.cols = colorRampPalette(c("white", blues9))(50),
   dens.contour = TRUE, probs = c(25,50,75,95),
   phi.contour = FALSE, phi.levels = NULL,
@@ -58,10 +58,11 @@ LinfK_scatterhist = function(
   # Called internally
   add_phiprime <- function(gridsize = 20, ...){
     usr <- par()$usr
+    usr <- replace(usr, which(usr < 0), 0)
     Linf <- seq(usr[1], usr[2], length.out = gridsize)
     K <- seq(usr[3], usr[4], length.out = gridsize)
-    Linf <- Linf[which(Linf>0)]
-    K <- K[which(K>0)]
+    Linf <- Linf[which(Linf>=0)]
+    K <- K[which(K>=0)]
     grd <- expand.grid(
       Linf = Linf,
       K = K
@@ -86,6 +87,9 @@ LinfK_scatterhist = function(
 
   # density estimation
   par(mar=c(3,3,0,0), mgp = c(2,0.5,0), tcl = -0.25)
+  if(is.null(H)){
+    H <- ks::Hpi(res[,c("Linf", "K")])
+  }
   kk <- ks::kde(
     x = res[,c("Linf", "K")], gridsize = gridsize, H = H
   )
@@ -140,5 +144,4 @@ LinfK_scatterhist = function(
 
   par(op)
 }
-
 

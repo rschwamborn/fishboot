@@ -5,8 +5,8 @@
 \title{Link/K scatterplot of bootstrapping results}
 \usage{
 LinfK_scatterhist(res, Linf.breaks = "Sturges", K.breaks = "Sturges",
-  gridsize = rep(151, 2), H = ks::Hpi(res[, c("Linf", "K")]),
-  shading = TRUE, shading.cols = colorRampPalette(c("white", blues9))(50),
+  gridsize = rep(151, 2), H = NULL, shading = TRUE,
+  shading.cols = colorRampPalette(c("white", blues9))(50),
   dens.contour = TRUE, probs = c(25, 50, 75, 95), phi.contour = FALSE,
   phi.levels = NULL, phi.contour.col = 8, phi.contour.lty = 2,
   phi.contour.lwd = 1, phi.contour.labcex = 0.75, pt.pch = 16,
@@ -23,7 +23,7 @@ LinfK_scatterhist(res, Linf.breaks = "Sturges", K.breaks = "Sturges",
 
 \item{gridsize}{vector. 2 values for defining the resolution of the grid}
 
-\item{H}{object from \code{\link[ks]{Hpi}} (Default: `ks::Hpi(res[,c("Linf", "K")])`)}
+\item{H}{object from \code{\link[ks]{Hpi}} (Default: `H = ks::Hpi(res[,c("Linf", "K")])`)}
 
 \item{shading}{logical. Should 2d field of density estimates be colored with colors
 specified by `shading.cols` argument (Default: `shading = TRUE`).}
