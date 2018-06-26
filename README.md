@@ -14,3 +14,7 @@ install_github("rschwamborn/fishboot")
 citation("fishboot")
 ```
 
+> Ralf Schwamborn, Tobias K. Mildenberger and Marc H. Taylor (2018).
+  fishboot: Bootstrap-based methods for the study of fish stocks and
+  aquatic populations. R package version 0.1.
+  https://github.com/rschwamborn/fishboot
