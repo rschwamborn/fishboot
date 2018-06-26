@@ -69,7 +69,6 @@
 #' (columns) by resampling (rows), `$seed` - a vector of seed values set prior to each resampling
 #' call to `lfqResample`.
 #'
-#' @export
 #'
 #' @examples
 #' \donttest{
@@ -120,6 +119,11 @@
 #' # plot scatterhist of Linf and K
 #' LinfK_scatterhist(res)
 #' }
+#'
+#' @importFrom stats quantile runif
+#' @importFrom parallel detectCores parLapply stopCluster detectCores
+#'
+#' @export
 #'
 ELEFAN_GA_boot <- function(lfq, seasonalised = FALSE, low_par = NULL, up_par = NULL,
   parallel = TRUE, nresamp = 200, no_cores = detectCores() - 1, clusterType = "PSOCK",

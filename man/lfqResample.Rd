@@ -39,12 +39,13 @@ par(op)
 alba_diff <- alba
 alba_diff$delta <- (alba$catch - alba_p$catch) / alba$catch
 alba_diff$delta[is.na(alba_diff$delta)] <- 0
-plot(alba, image.col = NA, hist.col=NA, draw = FALSE)
+plot(alba, Fname = "catch", image.col = NA, hist.col=NA, draw = FALSE)
 with(alba_diff, image(
   x=dates, y=midLengths, z=t(delta),
   zlim = max(abs(delta))*c(-1,1), col=rev(cm.colors(21)),
   add=TRUE
 ))
 with(alba_diff, contour(x=dates, y=midLengths, z=t(delta), add=TRUE))
+box()
 
 }

@@ -102,7 +102,4 @@ for(j in seq(CIinfo$limCI)){
   )
 }
 
-
-
-
 }

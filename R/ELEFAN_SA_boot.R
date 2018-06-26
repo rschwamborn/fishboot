@@ -68,7 +68,6 @@
 #' (columns) by resampling (rows), `$seed` - a vector of seed values set prior to each resampling
 #' call to `lfqResample`.
 #'
-#' @export
 #'
 #' @examples
 #' \donttest{
@@ -120,6 +119,11 @@
 #' LinfK_scatterhist(res)
 #'
 #' }
+#'
+#' @importFrom stats quantile runif
+#' @importFrom parallel detectCores parLapply stopCluster detectCores
+#'
+#' @export
 #'
 ELEFAN_SA_boot <- function(lfq, seasonalised = FALSE,
   init_par = NULL, low_par = NULL, up_par = NULL,

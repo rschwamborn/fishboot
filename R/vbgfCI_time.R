@@ -23,7 +23,6 @@
 #'   are within each of the defined CIs, `density` - the multivariate kernel density
 #'   estimates for each sample, and `max_dens` is a list with the VBGF parameter
 #'   combination having the maximum density estimate.
-#' @export
 #'
 #' @examples
 #'
@@ -75,7 +74,13 @@
 #'   )
 #' }
 #'
+#' @importFrom grDevices adjustcolor blues9 colorRampPalette rgb
+#' @importFrom graphics abline box contour hist image
+#'   layout legend lines mtext par plot points polygon
+#'   rect segments text
+#' @importFrom stats cov quantile runif
 #'
+#' @export
 #'
 #'
 vbgfCI_time <- function(res, CI = 95, agemax = NULL,
