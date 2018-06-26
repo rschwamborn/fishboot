@@ -41,7 +41,7 @@
 #' @param parallel logical; should parallelized computing be used. Depending on platform
 #'    operating system, the argument `clusterType` can be adjusted (see argument description for
 #'    details). (Default: `parallel = TRUE`)
-#' @param nresamp numeric; the number of permutations to run (Default: `nresamp = 10`)
+#' @param nresamp numeric; the number of permutations to run (Default: `nresamp = 200`)
 #' @param no_cores numeric (Default: `no_cores = detectCores() - 1`)
 #' @param clusterType (Default: `clusterType = "PSOCK"`)
 #' @param outfile character; text file name (Default: `outfile = "output.txt"`) which will
@@ -119,7 +119,7 @@
 #'
 ELEFAN_SA_boot <- function(lfq, seasonalised = FALSE,
   init_par = NULL, low_par = NULL, up_par = NULL,
-  parallel = TRUE, nresamp = 10, no_cores = detectCores() - 1, clusterType = "PSOCK",
+  parallel = TRUE, nresamp = 200, no_cores = detectCores() - 1, clusterType = "PSOCK",
   outfile = "output.txt",
   SA_time = 60, SA_temp = 1e5, maxit = NULL,
   MA = 5, addl.sqrt = FALSE, agemax = NULL, flagging.out = TRUE,

@@ -5,10 +5,11 @@
 \title{Bootstraped ELEFAN_SA}
 \usage{
 ELEFAN_SA_boot(lfq, seasonalised = FALSE, init_par = NULL, low_par = NULL,
-  up_par = NULL, parallel = TRUE, nresamp = 10, no_cores = detectCores()
-  - 1, clusterType = "PSOCK", outfile = "output.txt", SA_time = 60,
-  SA_temp = 1e+05, maxit = NULL, MA = 5, addl.sqrt = FALSE,
-  agemax = NULL, flagging.out = TRUE, resample = TRUE, seed = NULL)
+  up_par = NULL, parallel = TRUE, nresamp = 200,
+  no_cores = detectCores() - 1, clusterType = "PSOCK",
+  outfile = "output.txt", SA_time = 60, SA_temp = 1e+05, maxit = NULL,
+  MA = 5, addl.sqrt = FALSE, agemax = NULL, flagging.out = TRUE,
+  resample = TRUE, seed = NULL)
 }
 \arguments{
 \item{lfq}{a length frequency object of the class `lfq`}
@@ -58,7 +59,7 @@ following default values are used:
 operating system, the argument `clusterType` can be adjusted (see argument description for
 details). (Default: `parallel = TRUE`)}
 
-\item{nresamp}{numeric; the number of permutations to run (Default: `nresamp = 10`)}
+\item{nresamp}{numeric; the number of permutations to run (Default: `nresamp = 200`)}
 
 \item{no_cores}{numeric (Default: `no_cores = detectCores() - 1`)}
 

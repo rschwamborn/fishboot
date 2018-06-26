@@ -7,7 +7,7 @@
 ELEFAN_GA_boot(lfq, seasonalised = FALSE, low_par = NULL, up_par = NULL,
   parallel = TRUE, nresamp = 10, no_cores = detectCores() - 1,
   clusterType = "PSOCK", outfile = "output.txt", popSize = 60,
-  maxiter = 50, run = 10, pmutation = 0.2, pcrossover = 0.8,
+  maxiter = 50, run = 200, pmutation = 0.2, pcrossover = 0.8,
   elitism = base::max(1, round(popSize * 0.05)), MA = 5,
   addl.sqrt = FALSE, agemax = NULL, flagging.out = TRUE,
   resample = TRUE, seed = NULL)
@@ -51,7 +51,7 @@ but rather for each resampling. Depending on platform operating system,
 the argument `clusterType` can be adjusted (see argument description for
 details). (Default: `parallel = TRUE`)}
 
-\item{nresamp}{numeric; the number of permutations to run (Default: `nresamp = 10`)}
+\item{nresamp}{numeric; the number of permutations to run (Default: `nresamp = 200`)}
 
 \item{no_cores}{numeric (Default: `no_cores = detectCores() - 1`)}
 

@@ -33,7 +33,7 @@
 #'    but rather for each resampling. Depending on platform operating system,
 #'    the argument `clusterType` can be adjusted (see argument description for
 #'    details). (Default: `parallel = TRUE`)
-#' @param nresamp numeric; the number of permutations to run (Default: `nresamp = 10`)
+#' @param nresamp numeric; the number of permutations to run (Default: `nresamp = 200`)
 #' @param no_cores numeric (Default: `no_cores = detectCores() - 1`)
 #' @param clusterType (Default: `clusterType = "PSOCK"`)
 #' @param outfile character; text file name (Default: `outfile = "output.txt"`) which will
@@ -121,7 +121,7 @@
 ELEFAN_GA_boot <- function(lfq, seasonalised = FALSE, low_par = NULL, up_par = NULL,
   parallel = TRUE, nresamp = 10, no_cores = detectCores() - 1, clusterType = "PSOCK",
   outfile = "output.txt",
-  popSize = 60, maxiter = 50, run = 10,
+  popSize = 60, maxiter = 50, run = 200,
   pmutation = 0.2, pcrossover = 0.8,
   elitism = base::max(1, round(popSize * 0.05)),
   MA = 5, addl.sqrt = FALSE, agemax = NULL, flagging.out = TRUE,
