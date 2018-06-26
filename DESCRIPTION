@@ -2,7 +2,7 @@ Package: fishboot
 Type: Package
 Title: Bootstrap-based methods for the study of fish stocks and aquatic populations
 Version: 0.1
-Date: 2018-05-06
+Date: 2018-06-26
 Author: Ralf Schwamborn, Tobias K. Mildenberger, Marc H. Taylor
 Maintainer: Ralf Schwamborn <email@email.com>
 Description: The fishboot package contains a suite of new bootstrap-based models and software tools for the study of fish stocks and aquatic populations. 
