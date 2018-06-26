@@ -76,7 +76,7 @@
 #' library(TropFishR)
 #' data(alba)
 #'
-#' # settings
+#' # settings (these settings may not be optimal - for demo only)
 #' MA <- 7
 #' init_par <- NULL
 #' low_par <- list(Linf = 8, K = 0.1, t_anchor = 0)
@@ -115,6 +115,10 @@
 #'
 #' # plot resulting distributions
 #' univariate_density(res, use_hist = TRUE)
+#'
+#' # plot scatterhist of Linf and K
+#' LinfK_scatterhist(res)
+#'
 #' }
 #'
 ELEFAN_SA_boot <- function(lfq, seasonalised = FALSE,
@@ -138,7 +142,7 @@ ELEFAN_SA_boot <- function(lfq, seasonalised = FALSE,
       "parallel", "nresamp", "no_cores",
       "SA_temp", "SA_time", "maxit",
       "MA", "addl.sqrt", "agemax", "flagging.out",
-      "resample", "seed"
+      "resample", "seed", "outfile"
     )
 
     parFun <- function(x){

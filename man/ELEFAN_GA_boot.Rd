@@ -5,7 +5,7 @@
 \title{Bootstrapped ELEFAN_GA}
 \usage{
 ELEFAN_GA_boot(lfq, seasonalised = FALSE, low_par = NULL, up_par = NULL,
-  parallel = TRUE, nresamp = 10, no_cores = detectCores() - 1,
+  parallel = TRUE, nresamp = 200, no_cores = detectCores() - 1,
   clusterType = "PSOCK", outfile = "output.txt", popSize = 60,
   maxiter = 50, run = 200, pmutation = 0.2, pcrossover = 0.8,
   elitism = base::max(1, round(popSize * 0.05)), MA = 5,
@@ -110,7 +110,7 @@ call to `lfqResample`.
 library(TropFishR)
 data(alba)
 
-# settings
+# settings (these settings may not be optimal - for demo only)
 MA <- 7
 low_par <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
 up_par <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
@@ -149,6 +149,9 @@ res
 
 # plot resulting distributions
 univariate_density(res, use_hist = TRUE)
+
+# plot scatterhist of Linf and K
+LinfK_scatterhist(res)
 }
 
 }
