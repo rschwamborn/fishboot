@@ -58,6 +58,8 @@ LinfK_scatterhist = function(
   # Called internally
   add_phiprime <- function(gridsize = 20, ...){
     usr <- par()$usr
+    if(par()$`xlog`){usr[1:2] <- 10^usr[1:2]}
+    if(par()$`ylog`){usr[3:4] <- 10^usr[3:4]}
     usr <- replace(usr, which(usr < 0), 0)
     Linf <- seq(usr[1], usr[2], length.out = gridsize)
     K <- seq(usr[3], usr[4], length.out = gridsize)
