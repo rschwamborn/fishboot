@@ -122,9 +122,8 @@
 #'
 #' @importFrom stats quantile runif
 #' @importFrom parallel detectCores parLapply stopCluster detectCores
-#'
+#' 
 #' @export
-#'
 ELEFAN_GA_boot <- function(lfq, seasonalised = FALSE, low_par = NULL, up_par = NULL,
   parallel = TRUE, nresamp = 200, no_cores = detectCores() - 1, clusterType = "PSOCK",
   outfile = "output.txt",
