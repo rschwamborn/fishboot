@@ -10,7 +10,7 @@
 #'   called '$bootRaw'. 
 #'   The '$bootRaw' table also includes the growth performance index Phi', 
 #'   seaonal parameters "u" and "w" sensu Francis,1988, whih are equal to "C" 
-#'   sensu Pauly and Gaschütz, 1979 and and "ts" sensu Mildenberger et al., 2017.
+#'   sensu Pauly and GaschÃ¼tz, 1979 and and "ts" sensu Mildenberger et al., 2017.
 #'   The '$bootRaw' table also includes seed values and system time. 
 #'
 #'  @param L1 Vector of length at release of tagged fish (see fishmethods::grotag)
@@ -117,13 +117,12 @@ for(x in 1:(nresamp))
                     upper=list(sigma=5,nu=1,m=2,p=0.5,u=1,w=1),
                     lower=list(sigma=0,nu=0,m=-2,p=0,u=0,w=0),control=list(maxit=1e4)))
   
-  fitboot
   
   Linf <-  as.numeric (- fitboot$VBparms$Estimate[2]) # Linf
   K  <-  as.numeric  (fitboot$VBparms$Estimate[3])    # K
   PhiL <- log10(K) + 2 * log10(Linf)                  # Phi prime
   
-  u_estimate <- fitboot$table$Estimate[4]  # seasonal amplitude (sensu Pauly and Gaschütz 1979, Francis, 1988)
+  u_estimate <- fitboot$table$Estimate[4]  # seasonal amplitude (sensu Pauly and GaschÃ¼tz 1979, Francis, 1988)
   w_estimate  <-  fitboot$table$Estimate[5]  # summer point  (sensu Francis, 1988)
   
   
