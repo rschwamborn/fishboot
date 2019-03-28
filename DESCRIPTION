@@ -14,7 +14,7 @@ Imports:
     propagate,
     parallel,
     doParallel,
-    ks
+    ks,
     fishmethods
 License: GPL-3
 BugReports: https://github.com/rschwamborn/fishboot/issues
