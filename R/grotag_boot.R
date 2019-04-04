@@ -67,89 +67,178 @@
 # LinfK_scatterhist(res)
 # 
 
-
 grotag_boot <- function(input.data, nresamp = 200,
-                             L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL, alpha = NULL, beta = NULL,
-                             design = list(nu = 0, m = 0, p = 0, sea = 0),
-                             stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.01, u = 0.4, w = 0.4),
-                             upper = list(sigma = 5, nu = 1, m = 2, p = 1, u = 1, w = 1),
-                             lower = list(sigma = 0, nu = 0, m = -2, p = 0, u = 0, w = 0), gestimate = TRUE,
-                             st.ga = NULL, st.gb = NULL, st.galow = NULL, st.gaup = NULL, st.gblow = NULL,
-                             st.gbup = NULL, control = list(maxit = 10000))
-  
+                        
+                        L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL, alpha = NULL, beta = NULL,
+                        
+                        design = list(nu = 0, m = 0, p = 0, sea = 0),
+                        
+                        stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.01, u = 0.4, w= 0.4),
+                        
+                        upper = list(sigma= 5, nu = 1, m = 2, p = 1, u = 1, w = 1),
+                        
+                        lower = list(sigma = 0, nu = 0, m = -2, p = 0, u = 0, w = 0), gestimate = TRUE,
+                        
+                        st.ga = NULL, st.gb = NULL, st.galow = NULL, st.gaup = NULL, st.gblow = NULL,
+                        
+                        st.gbup = NULL, control = list(maxit = 10000))
+
+
+
 { 
-
- 
-res_tab <- data.frame(rep.int(NA,(nresamp)),
-                      rep.int(NA,(nresamp)),
-                      rep.int(NA,(nresamp)),
-                      rep.int(NA,(nresamp)),
-                      rep.int(NA,(nresamp)),
-                      rep.int(NA,(nresamp)),
-                      rep.int(NA,(nresamp))) # creates an empty results table for
+  
+  
+  
+  
+  
+  res_tab <- data.frame(rep.int(NA,(nresamp)),
+                        
+                        rep.int(NA,(nresamp)),
+                        
+                        rep.int(NA,(nresamp)),
+                        
+                        rep.int(NA,(nresamp)),
+                        
+                        rep.int(NA,(nresamp)),
+                        
+                        rep.int(NA,(nresamp)),
+                        
+                        rep.int(NA,(nresamp))) # creates an empty results table for
+  
+  
+  
+  
+  
+  names(res_tab) <- c( "Linf", "K", "PhiL", "u", "w", "seed","time")
+  
+  
+  
+  
+  
+  for(x in 1:(nresamp))
+    
+    
+    
+  {
+    
+    
+    
+    tryCatch({
+      
+      
+      
+      seed <- round((runif(1, min = 0, max = 1000)), 0)      
+      
+      seed_final <- (x + seed +.Random.seed[x]) 
+      
+      set.seed <- seed_final
+      
+      
+      
+      sam_size <-  nrow(input.data)
+      
+      input.rownames <- row.names(input.data)
+      
+      samplerows <- sample(input.rownames, sam_size, replace = TRUE)
+      
+      input.data_p <- input.data[samplerows,]
+      
+      
+      
+      
+      
+      
+      
+      fitboot <- with(input.data_p,
                       
-
-names(res_tab) <- c( "Linf", "K", "PhiL", "u", "w", "seed","time")
-
-
-for(x in 1:(nresamp))
-  
-{
-  
-  tryCatch({
-  
-  seed <- round((runif(1, min = 0, max = 1000)), 0)      
-  seed_final <- (x + seed +.Random.seed[x]) 
-  set.seed <- seed_final
-  
-  sam_size <-  nrow(input.data)
-  input.rownames <- row.names(input.data)
-  samplerows <- sample(input.rownames, sam_size, replace = TRUE)
-  input.data_p <- input.data[samplerows,]
-  
-  
-  
-  fitboot <- with(input.data_p,
-                  fishmethods::grotag( 
-                    L1=L1, L2=L2, T1=T1, T2=T2,alpha=35,beta=55,
-                    design=list(nu=1,m=1,p=1,sea=1),
-                    stvalue=list(sigma=0.9,nu=0.4,m=-1,p=0,u=0.4,w=0.4),
-                    upper=list(sigma=5,nu=1,m=2,p=0.5,u=1,w=1),
-                    lower=list(sigma=0,nu=0,m=-2,p=0,u=0,w=0),control=list(maxit=1e4)))
-  
-  
-  Linf <-  as.numeric (- fitboot$VBparms$Estimate[2]) # Linf
-  K  <-  as.numeric  (fitboot$VBparms$Estimate[3])    # K
-  PhiL <- log10(K) + 2 * log10(Linf)                  # Phi prime
-  
-  u_estimate <- fitboot$table$Estimate[4]  # seasonal amplitude (sensu Pauly and Gaschütz 1979, Francis, 1988)
-  w_estimate  <-  fitboot$table$Estimate[5]  # summer point  (sensu Francis, 1988)
-  
-  
-  res_tab[x,1] <- Linf
-  res_tab[x,2] <- K
-  res_tab[x,3] <- PhiL
-  res_tab[x,4] <- u_estimate
-  res_tab[x,5] <- w_estimate
-  res_tab[x,6] <- seed_final
-  res_tab[x,7] <- as.character(paste(Sys.time()))
-  
-  
-  
-  # remove NAs
-  res_tab <- res_tab[complete.cases(res_tab), ]
-  
-  }, error=function(e){})
-  
+                      fishmethods::grotag( 
+                        
+                        L1=L1, L2=L2, T1=T1, T2=T2,alpha=alpha,beta=beta,
+                        
+                        design=design,
+                        
+                        stvalue=stvalue,
+                        
+                        upper=upper,
+                        
+                        lower=lower,
+                        
+                        gestimate = gestimate,
+                        
+                        st.ga = st.ga, st.gb = st.gb, st.galow = st.galow, st.gaup = st.gaup, st.gblow = st.gblow,
+                        
+                        st.gbup = st.gbup,
+                        
+                        control=control))
+      
+      
+      Linf <-  as.numeric (- fitboot$VBparms$Estimate[2]) # Linf
+      
+      K  <-  as.numeric  (fitboot$VBparms$Estimate[3])    # K
+      
+      PhiL <- log10(K) + 2 * log10(Linf)                  # Phi prime
+      
+      
+      
+      u_estimate <- fitboot$table$Estimate[4]  # seasonal amplitude (sensu Pauly and Gaschütz 1979, Francis, 1988)
+      
+      w_estimate  <-  fitboot$table$Estimate[5]  # summer point  (sensu Francis, 1988)
+      
+      
+      
+      
+      
+      res_tab[x,1] <- Linf
+      
+      res_tab[x,2] <- K
+      
+      res_tab[x,3] <- PhiL
+      
+      res_tab[x,4] <- u_estimate
+      
+      res_tab[x,5] <- w_estimate
+      
+      res_tab[x,6] <- seed_final
+      
+      res_tab[x,7] <- as.character(paste(Sys.time()))
+      
+      
+      
+      
+      
+      
+      
+      # remove NAs
+      
+      res_tab <- res_tab[complete.cases(res_tab), ]
+      
+      
+      
+    }, error=function(e){})
+    
+    
+    
   }
-
-ret <- list()
-ret$bootRaw <- res_tab
-ret$seed <- seed
-class(ret) <- "lfqBoot"
-
-return(ret)
-
-
+  
+  
+  
+  ret <- list()
+  
+  ret$bootRaw <- res_tab
+  
+  ret$seed <- seed
+  
+  class(ret) <- "lfqBoot"
+  
+  
+  
+  return(ret)
+  
+  
+  
+  
+  
 }
+
+
 
