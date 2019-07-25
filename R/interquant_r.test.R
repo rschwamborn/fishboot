@@ -1,16 +1,3 @@
-# The interquantile range test, Version 0.1. 
-# (Copyright: R. Schwamborn, 2018) 
-# The function 'interquant_r.test'  
-# tests for differences between 95% Inter-Quantile Range    
-# Performs a non-parametric Harrell-Davis quantile test on standardized data 
-# uses the function Qanova within the R package WRS2 (Mair and Wilcox, 2017).
-
-# Details:
-# the interquantile range test, as implemented in  the function interquant_r.test, is a significance test used to verify significant differences in 95% interquantile range. 
-# More specifically, the range from the 0.025 to 0.975 quantile is analysed, that encompassed 95% of the data. This test is intended to compare the precision of statistical procedures, ie. to test for diffences in 95% confidence intervals. 
-# The 95% quantile ranges (i.e., the 95% confidence interval) of two posteriors, obtained as an output from Bayesian methods or from bootstrapping (e.g., ELEFAN_Boot) are compared. 
-# A simple non-parametric statistical test (the Harrell-Davis quantile test, see Wilcox, 2012) is conducted to verify whether there are significant differences in 95% quantile ranges of posteriors, i.e., to verify whether there are significant differences in 95% confidence intervals of the original parameter estimates. 
-# It uses the function Qanova within the R package WRS2 (Mair & Wilcox, 2017), and applies it to standardized posteriors. Standardized posteriors are calculated as: standardized_data = raw_data - 0.025 quantile.
 #' The interquantile range test
 #'
 #' @param 'data.A' a dataset (vector) of the class `numeric`.
