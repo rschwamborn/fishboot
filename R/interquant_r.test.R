@@ -3,14 +3,14 @@
 #' @param 'data.A' a dataset (vector) of the class `numeric`.
 #' @param 'data.B' a dataset (vector) of the class `numeric`.
 #' @param n.boot numeric; the number of bootstrap runs for the Qanova test (Default: `n.boot = 500`)
-
 #' @description The function tests for differences in 95% Inter-Quantile Range between two datasets     
 #' Performs a non-parametric Harrell-Davis quantile test on standardized data. 
 #' This test is intended to compare the precision of statistical procedures, 
 #' ie. to test for diffences in 95% confidence intervals. 
 #' The 95% quantile ranges (i.e., the 95% confidence interval) of two posteriors, obtained as an output from bootstrapping (e.g., obtained from from  ELEFAN_GA_boot.R) are compared. 
 #' A simple non-parametric statistical test (the Harrell-Davis quantile test, see Wilcox, 2012) is conducted to verify whether there are significant differences in 95% quantile ranges of posteriors, i.e., to verify whether there are significant differences in 95% confidence intervals of the original parameter estimates. 
-#' the function Qanova within the R package WRS2 (Mair & Wilcox, 2017) is used, and applied to standardized posteriors. Standardized posteriors are calculated as: standardized_data = raw_data - 0.025 quantile.
+#' the function Qanova within the R package WRS2 (Mair & Wilcox, 2017) is used, and applied to standardized posteriors. 
+#' Standardized posteriors are calculated as: standardized_data = raw_data - 0.025 quantile.
 #' Small "p" values (p < 0.05) mean that 95% interquantile ranges are signifficantly different between two datasets.
 #' 
 #'@return a single result ("p-value") of class `character` 
