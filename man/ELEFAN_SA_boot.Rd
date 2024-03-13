@@ -4,12 +4,27 @@
 \alias{ELEFAN_SA_boot}
 \title{Bootstraped ELEFAN_SA}
 \usage{
-ELEFAN_SA_boot(lfq, seasonalised = FALSE, init_par = NULL,
-  low_par = NULL, up_par = NULL, parallel = TRUE, nresamp = 200,
-  no_cores = detectCores() - 1, clusterType = "PSOCK",
-  outfile = "output.txt", SA_time = 60, SA_temp = 1e+05,
-  maxit = NULL, MA = 5, addl.sqrt = FALSE, agemax = NULL,
-  flagging.out = TRUE, resample = TRUE, seed = NULL)
+ELEFAN_SA_boot(
+  lfq,
+  seasonalised = FALSE,
+  init_par = NULL,
+  low_par = NULL,
+  up_par = NULL,
+  parallel = TRUE,
+  nresamp = 200,
+  no_cores = detectCores() - 1,
+  clusterType = "PSOCK",
+  outfile = "output.txt",
+  SA_time = 60,
+  SA_temp = 1e+05,
+  maxit = NULL,
+  MA = 5,
+  addl.sqrt = FALSE,
+  agemax = NULL,
+  flagging.out = TRUE,
+  resample = TRUE,
+  seed = NULL
+)
 }
 \arguments{
 \item{lfq}{a length frequency object of the class `lfq`}

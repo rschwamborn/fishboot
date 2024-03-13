@@ -4,16 +4,31 @@
 \alias{LinfK_scatterhist}
 \title{Link/K scatterplot of bootstrapping results}
 \usage{
-LinfK_scatterhist(res, Linf.breaks = "Sturges", K.breaks = "Sturges",
-  gridsize = rep(151, 2), H = NULL, shading = TRUE,
+LinfK_scatterhist(
+  res,
+  Linf.breaks = "Sturges",
+  K.breaks = "Sturges",
+  gridsize = rep(151, 2),
+  H = NULL,
+  shading = TRUE,
   shading.cols = colorRampPalette(c("white", blues9))(50),
-  dens.contour = TRUE, probs = c(25, 50, 75, 95),
-  phi.contour = FALSE, phi.levels = NULL, phi.contour.col = 8,
-  phi.contour.lty = 2, phi.contour.lwd = 1,
-  phi.contour.labcex = 0.75, pt.pch = 16, pt.col = adjustcolor(1,
-  0.25), pt.cex = 0.5, pt.bg = 4,
+  dens.contour = TRUE,
+  probs = c(25, 50, 75, 95),
+  phi.contour = FALSE,
+  phi.levels = NULL,
+  phi.contour.col = 8,
+  phi.contour.lty = 2,
+  phi.contour.lwd = 1,
+  phi.contour.labcex = 0.75,
+  pt.pch = 16,
+  pt.col = adjustcolor(1, 0.25),
+  pt.cex = 0.5,
+  pt.bg = 4,
   xlab = expression(italic("L")[infinity]),
-  ylab = expression(italic("K")), xlim = NULL, ylim = NULL)
+  ylab = expression(italic("K")),
+  xlim = NULL,
+  ylim = NULL
+)
 }
 \arguments{
 \item{res}{list of class `lfqBoot`}

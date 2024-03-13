@@ -3,6 +3,8 @@
 export(ELEFAN_GA_boot)
 export(ELEFAN_SA_boot)
 export(LinfK_scatterhist)
+export(grotag_boot)
+export(interquant_r.test)
 export(lfqResample)
 export(univariate_density)
 export(vbgfCI_time)
