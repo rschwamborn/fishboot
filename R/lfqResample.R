@@ -1,63 +1,61 @@
-#' Resampling of length-frequency data
+#' @title Resampling of length-frequency data
 #'
-#' @param lfq a length frequency object of the class `lfq`.
+#' @description This function resamples the \code{lfq} data by sampling dates.
+#' Sampling is done in a non-parametric way following the relative frequencies
+#' of the original data, allowing for individual counts to be selected more than
+#' once (i.e. \code{replace = TRUE} in \link[base]{sample}), and resulting in
+#' total counts (by sample) equal to the original data.
 #'
-#' @description The function resamples the `lfq` data by sample date.
-#'   Sampling is done in a non-parametric manner that follows the relative
-#'   frequencies of the original data, allowing for individual counts to be
-#'   selected more than once (i.e. `replace = TRUE` in \link[base]{sample}),
-#'   and resulting in total counts (by sample) equal to the original data.
+#' @param lfq A length frequency object of the class \code{lfq}.
 #'
-#' @return a resampled version of the `lfq` class dataset.
-#'
-#' @examples
-#' # load data
-#' library(TropFishR)
-#' data(alba)
-#'
-#' # resample lfq data
-#' alba_p <- lfqResample(alba)
-#'
-#' # side-by-side plot
-#' op <- par( mfcol = c(2,1), mar=c(4,4,2,1) )
-#' plot(lfqRestructure(alba), Fname="rcounts")
-#' mtext("original", side=3, line=0.25)
-#' plot(lfqRestructure(alba_p), Fname="rcounts")
-#' mtext("resampled", side=3, line=0.25)
-#' par(op)
-#'
-#' # relative difference
-#' alba_diff <- alba
-#' alba_diff$delta <- (alba$catch - alba_p$catch) / alba$catch
-#' alba_diff$delta[is.na(alba_diff$delta)] <- 0
-#' plot(alba, Fname = "catch", image.col = NA, hist.col=NA, draw = FALSE)
-#' with(alba_diff, image(
-#'   x=dates, y=midLengths, z=t(delta),
-#'   zlim = max(abs(delta))*c(-1,1), col=rev(cm.colors(21)),
-#'   add=TRUE
-#' ))
-#' with(alba_diff, contour(x=dates, y=midLengths, z=t(delta), add=TRUE))
-#' box()
-#'
-#' @importFrom grDevices adjustcolor blues9 colorRampPalette rgb
+#' @return A resampled version of the \code{lfq} class dataset.
 #'
 #' @export
 #'
+#' @examples
+#' # Load data
+#' data("alba", package = "TropFishR")
+#'
+#' # Resample lfq data
+#' alba_p <- lfqResample(lfq = alba)
+#'
+#' # Side-by-side plot
+#' op <- par(mfcol = c(2,1), mar = c(4, 4, 2, 1))
+#'
+#' # Original
+#' plot(x = TropFishR::lfqRestructure(alba), Fname = "rcounts")
+#' mtext("original", side=3, line=0.25)
+#'
+#' # Resampled
+#' plot(TropFishR::lfqRestructure(alba_p), Fname = "rcounts")
+#' mtext("resampled", side=3, line=0.25)
+#'
+#' par(op)
 lfqResample <- function(lfq){
-  # define bin breaks
-  bin.width <- diff(lfq$midLengths) # bin width (should allow for uneven bin sizes)
-  bin.lower <- lfq$midLengths - (c(bin.width[1], bin.width)/2) # upper bin limit
-  bin.upper <- lfq$midLengths + (c(bin.width, bin.width[length(bin.width)])/2) # lower bin limit
+  # Bin width (should allow for uneven bin sizes)
+  bin.width <- diff(x = lfq$midLengths)
+
+  # Upper bin limit
+  bin.lower <- lfq$midLengths - (c(bin.width[1], bin.width)/2)
+
+  # Lower bin limit
+  bin.upper <- lfq$midLengths + (c(bin.width, bin.width[length(bin.width)])/2)
+
   breaks <- unique(c(bin.lower, bin.upper))
+
   # copy lfq
   lfqb <- lfq
-  # resample with replacement (n = sum(lfq$catch[,i]))
+
+  # Resample with replacement (n = sum(lfq$catch[,i]))
   for(i in seq(length(lfq$dates))){
-    # resample with replacement using bin frequencies to inform probability weights
-    inds <- sample(x = lfq$midLengths, size = sum(lfq$catch[,i]), prob = lfq$catch[,i], replace = TRUE)
-    h <- hist(inds, breaks = breaks, plot = FALSE)
-    lfqb$catch[,i] <- h$counts
+    # Resample with replacement using bin frequencies to inform probability weights
+    inds <- sample(x = lfq$midLengths,
+                   size = sum(lfq$catch[,i]),
+                   prob = lfq$catch[,i],
+                   replace = TRUE)
+
+    lfqb$catch[,i] <- hist(x = inds, breaks = breaks, plot = FALSE)$counts
   }
+
   return(lfqb)
 }
-

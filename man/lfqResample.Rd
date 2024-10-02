@@ -7,45 +7,35 @@
 lfqResample(lfq)
 }
 \arguments{
-\item{lfq}{a length frequency object of the class `lfq`.}
+\item{lfq}{A length frequency object of the class \code{lfq}.}
 }
 \value{
-a resampled version of the `lfq` class dataset.
+A resampled version of the \code{lfq} class dataset.
 }
 \description{
-The function resamples the `lfq` data by sample date.
-  Sampling is done in a non-parametric manner that follows the relative
-  frequencies of the original data, allowing for individual counts to be
-  selected more than once (i.e. `replace = TRUE` in \link[base]{sample}),
-  and resulting in total counts (by sample) equal to the original data.
+This function resamples the \code{lfq} data by sampling dates.
+Sampling is done in a non-parametric way following the relative frequencies
+of the original data, allowing for individual counts to be selected more than
+once (i.e. \code{replace = TRUE} in \link[base]{sample}), and resulting in
+total counts (by sample) equal to the original data.
 }
 \examples{
-# load data
-library(TropFishR)
-data(alba)
+# Load data
+data("alba", package = "TropFishR")
 
-# resample lfq data
-alba_p <- lfqResample(alba)
+# Resample lfq data
+alba_p <- lfqResample(lfq = alba)
 
-# side-by-side plot
-op <- par( mfcol = c(2,1), mar=c(4,4,2,1) )
-plot(lfqRestructure(alba), Fname="rcounts")
+# Side-by-side plot
+op <- par(mfcol = c(2,1), mar = c(4, 4, 2, 1))
+
+# Original
+plot(x = TropFishR::lfqRestructure(alba), Fname = "rcounts")
 mtext("original", side=3, line=0.25)
-plot(lfqRestructure(alba_p), Fname="rcounts")
+
+# Resampled
+plot(TropFishR::lfqRestructure(alba_p), Fname = "rcounts")
 mtext("resampled", side=3, line=0.25)
+
 par(op)
-
-# relative difference
-alba_diff <- alba
-alba_diff$delta <- (alba$catch - alba_p$catch) / alba$catch
-alba_diff$delta[is.na(alba_diff$delta)] <- 0
-plot(alba, Fname = "catch", image.col = NA, hist.col=NA, draw = FALSE)
-with(alba_diff, image(
-  x=dates, y=midLengths, z=t(delta),
-  zlim = max(abs(delta))*c(-1,1), col=rev(cm.colors(21)),
-  add=TRUE
-))
-with(alba_diff, contour(x=dates, y=midLengths, z=t(delta), add=TRUE))
-box()
-
 }

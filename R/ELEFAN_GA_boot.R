@@ -1,238 +1,158 @@
-#' Bootstrapped ELEFAN_GA
+#' @title Bootstraped ELEFAN_GA
 #'
-#' @param lfq a length frequency object of the class `lfq`
-#' @param seasonalised logical; indicating if the seasonalised von Bertalanffy
-#'    growth function should be applied (default: FALSE).
-#' @param low_par a list providing the minimum of the search space in case
-#' of real-valued or permutation encoded optimizations. When set to NULL the
-#' following default values are used:
-#'  \itemize{
-#'   \item \strong{Linf} length infinity in cm (default is calculated from maximum
-#'   length class in the data),
-#'   \item \strong{K} curving coefficient (default: 0.01),
-#'   \item \strong{t_anchor} time point anchoring growth curves in year-length
-#'   coordinate system, corrsponds to peak spawning month (range: 0 to 1, default: 0),
-#'   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
-#'   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
+#' @description This function performs a bootstrapped fitting of von Bertalanffy
+#' growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_GA}} function.
+#' Most of the arguments are simply passed to the function within many
+#' permutations (resampling) of the original \code{lfq} data.
+#'
+#'
+#' @param lfq a length frequency object of the class \code{lfq} (see
+#' \link[TropFishR]{lfqCreate}).
+#' @param ... Extra arguments passed to \link[TropFishR]{ELEFAN_GA}:
+#' \code{seasonalised}, \code{low_par}, \code{up_par}, \code{popSize},
+#' \code{maxiter}, \code{run}, \code{parallel}, \code{pmutation},
+#' \code{pcrossover}, \code{elitism}, \code{MA}, \code{addl.sqrt}, \code{agemax},
+#' and \code{flagging.out}. Default values remain the same and just \code{plot} and
+#' \code{monitor} will be set as \code{FALSE}.
+#' @param ga_args additional parameters to pass to \link[GA]{ga}.
+#' @param nresamp \code{numeric}, the number of permutations to run (by default
+#' \code{nresamp = 200}).
+#' @param resample \code{logical}. Do you want that \code{lfq} object be
+#' resampled (\code{TRUE} by default).
+#' @param seed seed value for random number reproducibility.
+#' @param no_cores positive integer. If \code{no_cores} > 1, a 'parallel' package
+#' cluster with that many cores is created.
+#' @param outfile \code{character}; path of the file which will register the
+#' progress of the permutation completions. If it is set as \code{false},
+#' \code{NA} or \code{NULL}, no file will be created.
+#'
+#' @details
+#' If \code{resample = FALSE}, a \strong{partial bootstrap} is performed,
+#' reflecting solution variation due only to the search algorithm.
+#'
+#' @return An object of class `lfqBoot` containing 2 levels:
+#' \describe{
+#'   \item{\code{$bootRaw}}{A \code{data.frame} of fitted VBGF parameters
+#'   (columns) by resampling (rows).}
+#'   \item{\code{$seed}}{A \code{numeric} vector of seed values set prior to each
+#'   resampling call to \link[fishboot]{lfqResample}.}
 #' }
-#' @param up_par a list providing the maximum of the search space in case of
-#' real-valued or permutation encoded optimizations. When set to NULL the
-#' following default values are used:
-#'  \itemize{
-#'   \item \strong{Linf} length infinity in cm (default is calculated from maximum
-#'   length class in the data),
-#'   \item \strong{K} curving coefficient (default: 1),
-#'   \item \strong{t_anchor} time point anchoring growth curves in year-length
-#'   coordinate system, corrsponds to peak spawning month (range: 0 to 1, default: 1),
-#'   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 1),
-#'   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 1);
-#' }
-#' @param parallel logical; should parallelized computing be used. This differs from the
-#'    `parallel` argument in \code{\link[TropFishR]{ELEFAN_GA}} in that it is not used
-#'    within the \code{\link[GA]{ga}} function for calculation at the population level,
-#'    but rather for each resampling. Depending on platform operating system,
-#'    the argument `clusterType` can be adjusted (see argument description for
-#'    details). (Default: `parallel = TRUE`)
-#' @param nresamp numeric; the number of permutations to run (Default: `nresamp = 200`)
-#' @param no_cores numeric (Default: `no_cores = detectCores() - 1`)
-#' @param clusterType (Default: `clusterType = "PSOCK"`)
-#' @param outfile character; text file name (Default: `outfile = "output.txt"`) which will
-#'    records the progress of the permutation completions.
-#' @param popSize the population size. (Default: `popSize = 60`)
-#' @param maxiter the maximum number of iterations to run before the GA search is halted.
-#'   (Default: `maxiter = 50`)
-#' @param run the number of consecutive generations without any improvement
-#'   in the best fitness value before the GA is stopped. (Default: `run = 10`)
-#' @param pmutation numeric. A small fraction of 1.0. The probability of mutation in a
-#'   parent chromosome. Usually mutation occurs with a small probability.
-#'   (Default: `pmutation = 0.2`)
-#' @param pcrossover the probability of crossover between pairs of chromosomes.
-#' Typically this is a large value.  (Default: `pcrossover = 0.8`)
-#' @param elitism the number of best fitness individuals to survive at each generation.
-#' By default the top 5\% individuals will survive at each iteration.
-#' @param MA number indicating over how many length classes the moving average
-#' should be performed (default: 5, for more information see \code{\link[TropFishR]{lfqRestructure}}
-#' @param addl.sqrt logical. Should counts be square root transformed prior to restructuring.
-#' @param agemax numeric. maximum age
-#' @param flagging.out logical Should flagging out be done
-#' @param resample logical. Should `lfq` object be resampled (Default: `resample = TRUE`).
-#'   When `resample = FALSE`, a `partial bootstrap` is performed, reflecting solution
-#'   variation due only to the search algorithm.
-#' @param seed seed value for random number reproducibility (Default: NULL)
 #'
-#' @description `ELEFAN_GA_boot` performs a bootstrapped fitting of
-#'   von Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_GA}} function.
-#'   Most of the arguments are simply passed to the function within many permutations
-#'   (resampling) of the original lfq data.
-#'
-#' @return a list of class `lfqBoot` containing 2 levels: `$bootRaw` - a data.frame of fitted VBGF parameters
-#' (columns) by resampling (rows), `$seed` - a vector of seed values set prior to each resampling
-#' call to `lfqResample`.
+#' @export
 #'
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # load data
-#' library(TropFishR)
-#' data(alba)
+#' data("alba", package = "TropFishR")
 #'
-#' # settings (these settings may not be optimal - for demo only)
-#' MA <- 7
-#' low_par <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
-#' up_par <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
-#' popSize <- 60
-#' maxiter <- 50
-#' run <- 10
+#' # Define settings (for demo only)
+#' MA        <- 7
+#' low_par   <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
+#' up_par    <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
+#' popSize   <- 60
+#' maxiter   <- 50
+#' run       <- 10
 #' pmutation <- 0.2
-#' nresamp <- 12
+#' nresamp   <- 12
 #'
 #'
-#' # parallel version
-#' library(parallel)
-#' t1 <- Sys.time()
-#' res <- ELEFAN_GA_boot(lfq=alba, MA = MA, seasonalised = FALSE,
-#'   up_par = up_par, low_par = low_par,
-#'   popSize = popSize, maxiter = maxiter, run = run, pmutation = pmutation,
-#'   nresamp = nresamp, parallel = TRUE, no_cores = detectCores()-1,
-#'   seed = 1
-#' )
-#' t2 <- Sys.time()
-#' t2 - t1
+#' # Parallel version
+#' res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
+#'                       up_par = up_par, low_par = low_par,
+#'                       popSize = popSize, maxiter = maxiter,
+#'                       run = run, pmutation = pmutation,
+#'                       nresamp = nresamp, seed = 1,
+#'                       parallel = TRUE, no_cores = parallel::detectCores() - 2)
+#'
 #' res
 #'
 #'
-#' # non-parallel version
-#' t1 <- Sys.time()
-#' res <- ELEFAN_GA_boot(lfq=alba, seasonalised = FALSE,
-#'   up_par = up_par, low_par = low_par,
-#'   popSize = popSize, maxiter = maxiter, run = run,
-#'   pmutation = pmutation, nresamp = nresamp, MA = MA, parallel = FALSE,
-#'   seed = 1
-#' )
-#' t2 <- Sys.time()
-#' t2 - t1
+#' # Non-parallel version
+#' res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
+#'                       up_par = up_par, low_par = low_par,
+#'                       popSize = popSize, maxiter = maxiter,
+#'                       run = run, pmutation = pmutation,
+#'                       nresamp = nresamp, seed = 1,
+#'                       parallel = FALSE)
+#'
 #' res
 #'
-#' # plot resulting distributions
-#' univariate_density(res, use_hist = TRUE)
-#'
-#' # plot scatterhist of Linf and K
-#' LinfK_scatterhist(res)
+#' # Plot scatterhist of Linf and K
+#' LinfK_scatterhist(res = res)
 #' }
-#'
-#' @importFrom stats quantile runif
-#' @importFrom parallel detectCores parLapply stopCluster detectCores
-#' 
-#' @export
-ELEFAN_GA_boot <- function(lfq, seasonalised = FALSE, low_par = NULL, up_par = NULL,
-  parallel = TRUE, nresamp = 200, no_cores = detectCores() - 1, clusterType = "PSOCK",
-  outfile = "output.txt",
-  popSize = 60, maxiter = 50, run = 200,
-  pmutation = 0.2, pcrossover = 0.8,
-  elitism = base::max(1, round(popSize * 0.05)),
-  MA = 5, addl.sqrt = FALSE, agemax = NULL, flagging.out = TRUE,
-  resample = TRUE, seed = NULL
-){
+ELEFAN_GA_boot <- function(lfq, ..., ga_args = NULL, nresamp = 200,
+                           resample = TRUE, seed = NULL,
+                           no_cores = 1, outfile = NA){
 
-  if(!is.null(outfile)){unlink(outfile)} # delete old outfile
+  if(is.null(seed)) seed <- as.integer(x = runif(n = 1, min = 0, max = 1e6))
 
-  if(is.null(seed)){ seed <- round(runif(1, min = 0, max = 1e6))}
+  if(no_cores > 1){
 
-  if(parallel){ # Parallel version
-    ARGS <- list(
-      "lfqResample",
-      "lfq", "seasonalised", "low_par", "up_par",
-      "parallel", "nresamp", "no_cores",
-      "popSize", "maxiter", "run",
-      "pmutation", "pcrossover", "elitism",
-      "MA", "addl.sqrt", "agemax", "flagging.out",
-      "resample", "seed", "outfile"
-    )
+    # Registering cluster
+    cl <- makeCluster(spec = no_cores)
+    registerDoParallel(cl = cl)
 
-    parFun <- function(x){
-      set.seed(seed + x)
-
-      # resample data
-      if(resample){
-        lfqb <- lfqResample(lfq)
-      }else{
-        lfqb <- lfq
-      }
-
-      # call ELEFAN_GA
-      fitboot <- TropFishR::ELEFAN_GA(
-        lfqb, seasonalised = seasonalised,
-        low_par = low_par,
-        up_par = up_par,
-        popSize = popSize, maxiter = maxiter, run = run,
-        pmutation = pmutation, pcrossover = pcrossover, elitism = elitism,
-        MA = MA, parallel = FALSE, addl.sqrt = addl.sqrt,
-        agemax = agemax, flagging.out = flagging.out,
-        plot.score = FALSE, seed = NULL
-      )
-
-      # print output (for checking progress in output.txt)
-      if(!is.null(outfile)){
-        sink(file=outfile, append = TRUE)
-        print(paste("resamp", x, "completed @", Sys.time()))
-        sink()
-      }
-
-      # return result
-      return( c(unlist(fitboot$par), seed + x) )
+    # Run multithread process
+    res <- foreach(x = seq(nresamp), .inorder = FALSE, .packages = "TropFishR") %dopar% {
+      lfq_ELEFAN_GA(lfq = lfq, x = x, resample = resample, seed = seed,
+                    ga_args = ga_args, ...)
     }
 
-    cl <- parallel::makeCluster(no_cores, type=clusterType)
-    nn <- split(1:nresamp, 1:nresamp)
-    parallel::clusterExport(cl, varlist = ARGS, envir=environment())
-    res <- parLapply(cl, nn, parFun)
+    # Finish cluster
     stopCluster(cl)
-  }
+  }else{
 
-  if(!parallel){ # Non-parallel version
-    res <- vector("list", nresamp) # empty results list
+    # Empty results list
+    res <- vector("list", nresamp)
+
     for(x in seq(res)){
-      set.seed(x + seed)
-
-      # resample data
-      if(resample){
-        lfqb <- lfqResample(lfq)
-      }else{
-        lfqb <- lfq
-      }
-
-      # call ELEFAN_GA
-      fitboot <- TropFishR::ELEFAN_GA(
-        lfqb, seasonalised = seasonalised,
-        low_par = low_par,
-        up_par = up_par,
-        popSize = popSize, maxiter = maxiter, run = run,
-        pmutation = pmutation, pcrossover = pcrossover, elitism = elitism,
-        MA = MA, parallel = FALSE, addl.sqrt = addl.sqrt,
-        agemax = agemax, flagging.out = flagging.out,
-        plot.score = FALSE, seed = NULL
-      )
-
-      if(!is.null(outfile)){
-        sink(file=outfile, append = TRUE)
-        print(paste("resamp", x, "completed @", Sys.time()))
-        sink()
-      }
-
-      # return result
-      res[[x]] <- c(unlist(fitboot$par), seed + x)
+      res[[x]] <- lfq_ELEFAN_GA(lfq = lfq, x = x, resample = resample, seed = seed,
+                                ga_args = ga_args, ...)
     }
-
   }
 
-  tmp0 <- as.data.frame(do.call("rbind", res))
-  tmp <- tmp0[,-ncol(tmp0)]
+  res <- do.call(what = rbind, args = res) |> as.data.frame()
 
-  ret <- list()
-  ret$bootRaw <- tmp
-  ret$seed <- as.numeric(tmp0[,ncol(tmp0)])
-  class(ret) <- "lfqBoot"
+  res <- list(bootRaw = res[,-ncol(res)],
+              seed = res$seed)
 
-  return(ret)
+  class(res) <- "lfqBoot"
+
+  res
 }
 
+lfq_ELEFAN_GA <- function(lfq, x, resample, seed, ga_args, ...){
+  set.seed(x + seed)
+
+  # resample data
+  if(resample){
+    lfqb <- lfqResample(lfq = lfq)
+  }else{
+    lfqb <- lfq
+  }
+
+  fitboot <- formals(ELEFAN_GA) |>
+
+    # Combine arguments
+    modifyList(val = append(list(lfq = lfqb), list(...))) |>
+
+    # Set plotting arguments
+    modifyList(val = list(monitor = FALSE,
+                          plot = FALSE,
+                          plot.score = FALSE,
+                          parallel = FALSE,
+                          ... = ga_args)) |>
+
+    as.list()
+
+  if(is.call(fitboot$elitism)) fitboot$elitism <- eval(expr = fitboot$elitism,
+                                                       envir = fitboot)
+
+
+  # Call ELEFAN_GA
+  fitboot <- do.call(what = ELEFAN_GA, args = fitboot)
+
+  # return result
+  c(unlist(fitboot$par), seed = seed + x)
+}

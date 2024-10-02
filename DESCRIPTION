@@ -1,25 +1,58 @@
 Package: fishboot
 Type: Package
 Title: Bootstrap-based methods for the study of fish stocks and aquatic populations
-Version: 0.1
-Date: 2018-06-26
-Author: Ralf Schwamborn, Tobias K. Mildenberger, Marc H. Taylor
-Maintainer: Ralf Schwamborn <rs@ufpe.br>
-Description: The fishboot package contains a suite of new bootstrap-based models and software tools for the study of fish stocks and aquatic populations. 
-Depends: R (>= 3.4.2)
+Version: 1.0.0.9000
+Date: 2024-10-02
+Authors@R: c(
+  person("Ralf", "Schwamborn", 
+    role = c("aut", "cre"), 
+    email = "rs@ufpe.br",
+    comment = c(ORCID = "0000-0003-3701-3772")),
+  person("Tobias K.", "Mildenberger", 
+    role = c("aut"), 
+    email = "tobm@aqua.dtu.dk"),
+  person("Marc H.", "Taylor", 
+    role = c("aut"), 
+    email = "marc.taylor@thuenen.de"),
+  person("Matheus", "Barros", 
+    role = c("aut"), 
+    email = "matheus.barrosteu@gmail.com"),
+  person("Wesley", "Neves", 
+    role = c("aut"), 
+    email = "wesley.neves@ufpe.br"),
+  person("Matheus", "Assis de Oliveira", 
+    role = c("aut"), 
+    email = "matheus.assis@ufpe.br"),
+  person("Margit", "Wilhelm", 
+    role = c("aut"), 
+    email = "mwilhelm@unam.na"),
+  person("Wencheng", "Lau-Medrano", 
+    role = c("ctb"), 
+    email = "luis.laum@gmail.com",
+    comment = c(ORCID = "0000-0002-7979-9710"))
+  )
+Description: The fishboot package contains a suite of new bootstrap-based models and 
+  software tools for the study of fish stocks and aquatic populations. 
+Depends: R (>= 4.1.0)
 Imports:
-    TropFishR,
-    GenSA,
-    GA,
-    propagate,
-    parallel,
     doParallel,
-    WRS2,
+    parallel,
+    foreach,
+    grDevices,
+    graphics,
+    stats,
+    utils,
     ks,
-    fishmethods
+    TropFishR,
+    fishmethods,
+    WRS2
 License: GPL-3
 BugReports: https://github.com/rschwamborn/fishboot/issues
 URL: https://github.com/rschwamborn/fishboot
 Encoding: UTF-8
-LazyData: FALSE
-RoxygenNote: 6.1.0
+LazyData: true
+RoxygenNote: 7.3.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

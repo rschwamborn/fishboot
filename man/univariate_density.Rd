@@ -2,43 +2,40 @@
 % Please edit documentation in R/univariate_density.R
 \name{univariate_density}
 \alias{univariate_density}
-\title{Univariate kernal density estimate plot of VBGF parameter from bootstrapping results}
+\title{Univariate kernel density estimate plot of VBGF parameter from
+bootstrapping results}
 \usage{
-univariate_density(res, CI = 95, use_hist = FALSE, nbreaks = 10,
-  mar = c(1.5, 2, 2, 0), oma = c(1.5, 0, 0, 0.5), mgp = c(2, 0.5, 0),
-  tcl = -0.25, cex = 1, ...)
+univariate_density(
+  res,
+  CI = 95,
+  use_hist = FALSE,
+  nbreaks = 10,
+  mar = c(1.5, 2, 2, 0),
+  oma = c(1.5, 0, 0, 0.5),
+  mgp = c(2, 0.5, 0),
+  tcl = -0.25,
+  cex = 1,
+  ...
+)
 }
 \arguments{
-\item{res}{list of class `lfqBoot`}
+\item{res}{Object of class \code{lfqBoot}.}
 
-\item{CI}{numeric. Confidence interval level (Default: 95)}
+\item{CI}{\code{numeric}. Confidence interval in \% (default: 95).}
 
-\item{use_hist}{logical. Plot histogram in addition to smoothed kernel density.}
+\item{use_hist}{\code{logical} Plot histogram in addition to smoothed kernel
+density.}
 
-\item{nbreaks}{numeric. Number of breaks in the histogram.}
+\item{nbreaks}{\code{numeric} vector specifying the number of breaks in the
+histogram.}
 
-\item{mar}{vector. Inner margins settings. See `?par`.}
-
-\item{oma}{vector. Outer margins settings.See `?par`.}
-
-\item{mgp}{vector. See `?par`.}
-
-\item{tcl}{vector. See `?par`.}
-
-\item{cex}{numeric. See `?par`.}
-
-\item{...}{Additional arguments passed to `par`.}
-}
-\value{
-plot
+\item{mar, oma, mgp, tcl, cex, ...}{Additional arguments passed to
+\link[graphics]{par}.}
 }
 \description{
-Univariate kernal density estimate plot of VBGF parameter from bootstrapping results
+Pending...
 }
 \examples{
-
 data(alba_boot)
 univariate_density(alba_boot)
-
-
 }
