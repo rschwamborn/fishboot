@@ -1,8 +1,8 @@
 Package: fishboot
 Type: Package
 Title: Bootstrap-based methods for the study of fish stocks and aquatic populations
-Version: 1.0.0.9000
-Date: 2024-10-02
+Version: 1.0.0.9001
+Date: 2024-10-15
 Authors@R: c(
   person("Ralf", "Schwamborn", 
     role = c("aut", "cre"), 
@@ -14,6 +14,10 @@ Authors@R: c(
   person("Marc H.", "Taylor", 
     role = c("aut"), 
     email = "marc.taylor@thuenen.de"),
+  person("Margit", "Wilhelm", 
+    role = c("aut"), 
+    email = "mwilhelm@unam.na",
+    comment = c(ORCID = "0000-0001-9271-2109")),
   person("Matheus", "Barros", 
     role = c("aut"), 
     email = "matheus.barrosteu@gmail.com"),
@@ -23,16 +27,13 @@ Authors@R: c(
   person("Matheus", "Assis de Oliveira", 
     role = c("aut"), 
     email = "matheus.assis@ufpe.br"),
-  person("Margit", "Wilhelm", 
-    role = c("aut"), 
-    email = "mwilhelm@unam.na"),
   person("Wencheng", "Lau-Medrano", 
     role = c("ctb"), 
     email = "luis.laum@gmail.com",
     comment = c(ORCID = "0000-0002-7979-9710"))
   )
-Description: The fishboot package contains a suite of new bootstrap-based models and 
-  software tools for the study of fish stocks and aquatic populations. 
+Description: The fishboot package contains a suite of new bootstrap-based models 
+  and software tools for the study of fish stocks and aquatic populations. 
 Depends: R (>= 4.1.0)
 Imports:
     doParallel,
@@ -44,8 +45,7 @@ Imports:
     utils,
     ks,
     TropFishR,
-    fishmethods,
-    WRS2
+    fishmethods
 License: GPL-3
 BugReports: https://github.com/rschwamborn/fishboot/issues
 URL: https://github.com/rschwamborn/fishboot

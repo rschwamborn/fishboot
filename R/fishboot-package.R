@@ -13,8 +13,7 @@
 #' @importFrom stats runif cov quantile complete.cases
 #' @importFrom utils modifyList stack
 #' @importFrom ks kde Hpi
-#' @importFrom TropFishR ELEFAN_SA ELEFAN_GA VBGF
+#' @importFrom TropFishR ELEFAN_SA ELEFAN_GA VBGF lfqRestructure growth_length_age
 #' @importFrom fishmethods grotag
-#' @importFrom WRS2 Qanova
 ## usethis namespace: end
 NULL

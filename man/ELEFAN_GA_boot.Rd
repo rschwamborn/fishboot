@@ -6,11 +6,22 @@
 \usage{
 ELEFAN_GA_boot(
   lfq,
+  seasonalised = FALSE,
+  low_par = NULL,
+  up_par = NULL,
+  popSize = 50,
+  maxiter = 100,
+  run = maxiter,
+  pmutation = 0.1,
+  pcrossover = 0.8,
+  elitism = base::max(1, round(popSize * 0.05)),
+  MA = 5,
+  addl.sqrt = FALSE,
+  agemax = NULL,
   ...,
-  ga_args = NULL,
+  seed = NULL,
   nresamp = 200,
   resample = TRUE,
-  seed = NULL,
   no_cores = 1,
   outfile = NA
 )
@@ -19,22 +30,71 @@ ELEFAN_GA_boot(
 \item{lfq}{a length frequency object of the class \code{lfq} (see
 \link[TropFishR]{lfqCreate}).}
 
-\item{...}{Extra arguments passed to \link[TropFishR]{ELEFAN_GA}:
-\code{seasonalised}, \code{low_par}, \code{up_par}, \code{popSize},
-\code{maxiter}, \code{run}, \code{parallel}, \code{pmutation},
-\code{pcrossover}, \code{elitism}, \code{MA}, \code{addl.sqrt}, \code{agemax},
-and \code{flagging.out}. Default values remain the same and just \code{plot} and
-\code{monitor} will be set as \code{FALSE}.}
+\item{seasonalised}{logical; indicating if the seasonalised von Bertalanffy
+growth function should be applied (default: FALSE).}
 
-\item{ga_args}{additional parameters to pass to \link[GA]{ga}.}
+\item{low_par}{a list providing the minimum of the search space in case
+of real-valued or permutation encoded optimizations. When set to NULL the
+following default values are used:
+\itemize{
+  \item \strong{Linf} length infinity in cm (default is calculated from maximum
+  length class in the data),
+  \item \strong{K} curving coefficient (default: 0.01),
+  \item \strong{t_anchor} time point anchoring growth curves in year-length
+  coordinate system, corresponds to peak spawning month (range: 0 to 1, default: 0),
+  \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
+  \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
+}}
+
+\item{up_par}{a list providing the maximum of the search space in case of
+real-valued or permutation encoded optimizations. When set to NULL the
+following default values are used:
+\itemize{
+  \item \strong{Linf} length infinity in cm (default is calculated from maximum
+  length class in the data),
+  \item \strong{K} curving coefficient (default: 1),
+  \item \strong{t_anchor} time point anchoring growth curves in year-length
+  coordinate system, corresponds to peak spawning month (range: 0 to 1, default: 1),
+  \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 1),
+  \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 1);
+}}
+
+\item{popSize}{the population size. Default: 50}
+
+\item{maxiter}{the maximum number of iterations to run before the
+GA search is halted. default:100}
+
+\item{run}{the number of consecutive generations without any improvement
+in the best fitness value before the GA is stopped. Default: equals maxiter}
+
+\item{pmutation}{the probability of mutation in a parent chromosome.
+Usually mutation occurs with a small probability, and by default is set to 0.1.}
+
+\item{pcrossover}{the probability of crossover between pairs of chromosomes.
+Typically this is a large value and by default is set to 0.8.}
+
+\item{elitism}{the number of best fitness individuals to survive at each generation.
+By default the top 5\% individuals will survive at each iteration.}
+
+\item{MA}{number indicating over how many length classes the moving average
+should be performed (default: 5, for
+   more information see \link[TropFishR]{lfqRestructure})}
+
+\item{addl.sqrt}{additional squareroot transformation of positive values
+according to Brey et al. (1988) (default: FALSE, for
+   more information see \link[TropFishR]{lfqRestructure})}
+
+\item{agemax}{maximum age of species; default NULL, then estimated from Linf}
+
+\item{...}{additional parameters to pass to \code{\link[GA]{ga}}.}
+
+\item{seed}{seed value for random number reproducibility.}
 
 \item{nresamp}{\code{numeric}, the number of permutations to run (by default
 \code{nresamp = 200}).}
 
 \item{resample}{\code{logical}. Do you want that \code{lfq} object be
 resampled (\code{TRUE} by default).}
-
-\item{seed}{seed value for random number reproducibility.}
 
 \item{no_cores}{positive integer. If \code{no_cores} > 1, a 'parallel' package
 cluster with that many cores is created.}
@@ -44,7 +104,7 @@ progress of the permutation completions. If it is set as \code{false},
 \code{NA} or \code{NULL}, no file will be created.}
 }
 \value{
-An object of class `lfqBoot` containing 2 levels:
+An object of class \code{lfqBoot} containing 2 levels:
 \describe{
   \item{\code{$bootRaw}}{A \code{data.frame} of fitted VBGF parameters
   (columns) by resampling (rows).}

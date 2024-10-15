@@ -3,7 +3,8 @@
 #' @description
 #' Pending...
 #'
-#' @param res Object of class \code{lfqBoot}.
+#' @param res Object of class \code{data.frame}, \code{tbl_df}, \code{lfqBoot}
+#' or \code{grotagBoot}.
 #' @param Linf.breaks,K.breaks Arguments passed to \link[graphics]{hist}
 #' function to compute the breakpoints (argument \code{breaks}) for Linf and K
 #' histograms respectively.
@@ -39,24 +40,27 @@
 #' @export
 #'
 #' @examples
-#' data(alba_boot)
+#' data(alba_boot) # lfqBoot object
 #' LinfK_scatterhist(res = alba_boot)
-LinfK_scatterhist = function(res,
-                             Linf.breaks = "Sturges", K.breaks = "Sturges",
-                             gridsize = rep(151, 2), H = NULL,
-                             shading = TRUE, shading.cols = NULL,
-                             dens.contour = TRUE, probs = c(25,50,75,95),
-                             phi.contour = FALSE, phi.levels = NULL,
-                             phi.contour.col = 8, phi.contour.lty = 2,
-                             phi.contour.lwd = 1, phi.contour.labcex = 0.75,
-                             pt.pch = 16, pt.col = adjustcolor(1, 0.25),
-                             pt.cex = 0.5, pt.bg = 4,
-                             xlab = expression(italic("L")[infinity]),
-                             ylab = expression(italic("K")),
-                             ...){
+#'
+#' data(bonito_boot) # grotagBoot object
+#' LinfK_scatterhist(res = bonito_boot)
+LinfK_scatterhist <- function(res,
+                              Linf.breaks = "Sturges", K.breaks = "Sturges",
+                              gridsize = rep(151, 2), H = NULL,
+                              shading = TRUE, shading.cols = NULL,
+                              dens.contour = TRUE, probs = c(25, 50, 75, 95),
+                              phi.contour = TRUE, phi.levels = NULL,
+                              phi.contour.col = 8, phi.contour.lty = 2,
+                              phi.contour.lwd = 1, phi.contour.labcex = 0.75,
+                              pt.pch = 16, pt.col = adjustcolor(1, 0.25),
+                              pt.cex = 0.5, pt.bg = 4,
+                              xlab = expression(italic("L")[infinity]),
+                              ylab = expression(italic("K")),
+                              ...){
 
-  # Extract bootstrap results
-  res <- res$bootRaw
+  # Extract values of Linf and K from res
+  res <- get_LinfK(x = res)
 
   # Catch original par
   op <- par(no.readonly = TRUE)
@@ -71,16 +75,16 @@ LinfK_scatterhist = function(res,
   par(mar = c(3, 3, 0, 0), mgp = c(2, 0.5, 0), tcl = -0.25, cex = 1)
 
   # Define default value for H
-  if(is.null(H)) H <- Hpi(res[,c("Linf", "K")])
+  if(is.null(H)) H <- Hpi(x = res)
 
-  kk <- kde(x = res[,c("Linf", "K")], gridsize = gridsize, H = H)
+  kk <- kde(x = res, gridsize = gridsize, H = H)
 
   # Define default plot limits
   xlim <- list(...)$xlim
   ylim <- list(...)$ylim
 
-  if(is.null(xlim)) xlim <- range(kk$eval.points[[1]])
-  if(is.null(ylim)) ylim <- range(kk$eval.points[[2]])
+  if(is.null(xlim)) xlim <- c(0, max(kk$eval.points[[1]]))
+  if(is.null(ylim)) ylim <- c(0, max(kk$eval.points[[2]]))
 
   if(is.null(shading.cols)) shading.cols <- colorRampPalette(c("white", blues9))(1e3)
 
@@ -113,8 +117,8 @@ LinfK_scatterhist = function(res,
   box()
 
   # histogram data
-  xhist <- hist(x = res[,"Linf"], plot = FALSE, breaks = Linf.breaks)
-  yhist <- hist(x = res[,"K"], plot = FALSE, breaks = K.breaks)
+  xhist <- hist(x = res$Linf, plot = FALSE, breaks = Linf.breaks)
+  yhist <- hist(x = res$K, plot = FALSE, breaks = K.breaks)
   top <- max(c(xhist$counts, yhist$counts))
 
 
@@ -172,4 +176,33 @@ add_phiprime <- function(gridsize = 20, ...){
             z = matrix(data = grd$phiL, nrow = gridsize, ncol = gridsize))
 
   contour(x = M, add = TRUE, ...)
+}
+
+get_LinfK <- function(x){
+
+  # Define functions for extracting Linf and K values from several objects (classes)
+  getData <- list("tbl_df" = \(obj) obj,
+                  "tbl" = \(obj) obj,
+                  "data.frame" = \(obj) obj,
+                  "grotagBoot" = \(obj) obj,
+                  "lfqBoot" = \(obj) obj$bootRaw)
+
+  # Searching the class of 'x' within the getData definitions
+  index <- match(x = class(x), table = names(getData))[1]
+
+  # If there is not a defined way (function) to extract Linf and K variables,
+  # return an error msg
+  if(is.na(index)){
+    sprintf(fmt = "Internal funtion 'get_LinfK' do not know how to extract Linf or K from a '%s' object.",
+            class(x)) |> stop()
+  }
+
+  # Extracting data an coerce to data.frame
+  out <- getData[[index]](x) |> as.data.frame()
+
+  # Set the column names as lowercase
+  colnames(out) <- tolower(colnames(out))
+
+  # Indexing Linf and K only and set standard column names
+  out[,c("linf", "k")] |> setNames(c("Linf", "K"))
 }

@@ -10,12 +10,25 @@ grotag_boot(
   L2 = NULL,
   T1 = NULL,
   T2 = NULL,
-  ...,
+  alpha = NULL,
+  beta = NULL,
+  design = list(nu = 0, m = 0, p = 0, sea = 0),
+  stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.1, u = 0.4, w = 0.4),
+  upper = list(sigma = 5, nu = 1, m = 2, p = 1, u = 1, w = 1),
+  lower = list(sigma = 0, nu = 0, m = -2, p = 0, u = 0, w = 0),
+  gestimate = TRUE,
+  st.ga = NULL,
+  st.gb = NULL,
+  st.galow = NULL,
+  st.gaup = NULL,
+  st.gblow = NULL,
+  st.gbup = NULL,
+  control = list(maxit = 10000),
   input.data = NULL,
+  seed = as.numeric(Sys.time()),
   nresamp = 200,
-  seed = 123,
-  no_cores = 1,
-  cc.ony = FALSE
+  cc.only = FALSE,
+  time_lim = 5 * 60
 )
 }
 \arguments{
@@ -23,26 +36,57 @@ grotag_boot(
 and used by the \link[fishmethods]{grotag} function for the arguments
 \code{L1}, \code{L2}, \code{T1} and \code{T2}, respectively. See Details.}
 
-\item{...}{Extra arguments passed to \link[fishmethods]{grotag}:
-\code{alpha}, \code{beta}, \code{design}, \code{stvalue}, \code{upper},
-\code{lower}, \code{st.ga}, \code{st.gb}, \code{st.galow}, \code{st.gaup},
-\code{st.gblow}, \code{st.gbup} and \code{control}. It is important for the
-user to indicate at least values of \code{alpha} and \code{beta}.}
+\item{alpha}{\code{numeric} value giving an arbitrary length alpha.}
+
+\item{beta}{\code{numeric} value giving an arbitrary length beta
+(\code{beta} > \code{alpha}).}
+
+\item{design}{\code{list} specifying the design of the model to estimate. Use
+1 to designate whether a parameter(s) should be estimated. Type of parameters
+are:
+\itemize{
+ \item \code{nu}: growth variability (1 parameter).
+ \item \code{m}: bias parameter of measurement error (1 parameter).
+ \item \code{p}: outlier probability (1 parameter).
+ \item \code{sea}: seasonal variation (2 parameters: u and w).
+}
+Model 1 of Francis is the default settings of 0 for \code{nu}, \code{m},
+\code{p} and \code{sea}.}
+
+\item{stvalue}{Starting values of sigma(s) and depending on the \code{design}
+argument, \code{nu}, \code{m}, \code{p}, \code{u}, and \code{w} used as input
+in the nonlinear estimation (function \link[stats]{optim}) routine.}
+
+\item{upper, lower}{Upper and lower limits of the model parameters' (\code{nu},
+\code{m}, \code{p}, \code{u}, and \code{w}) region to be investigated.}
+
+\item{gestimate}{\code{logical} specifying whether starting values of
+\strong{ga} and \strong{gb} (growth increments of \code{alpha} and \code{beta})
+should be estimated automatically. \code{TRUE} by default.}
+
+\item{st.ga, st.gb}{If \code{gestimate=FALSE}, user-specified starting value
+for ga and gb respectively.}
+
+\item{st.galow, st.gaup}{If \code{gestimate=FALSE}, user-specified lower and
+upper limits for \code{st.ga} used in optimization.}
+
+\item{st.gblow, st.gbup}{If \code{gestimate=FALSE}, user-specified lower and
+upper limits for \code{st.gb} used in optimization.}
+
+\item{control}{Additional controls passed to the optimization function
+\link[stats]{optim}.}
 
 \item{input.data}{A growth increment object of the class \code{data.frame}.}
+
+\item{seed}{seed value for random number reproducibility.}
 
 \item{nresamp}{\code{numeric}; the number of permutations to run (Default:
 \code{nresamp = 200}).}
 
-\item{seed}{seed value for random number reproducibility.}
-
-\item{no_cores}{positive integer. If \code{no_cores} > 1, a 'parallel' package
-cluster with that many cores is created.}
-
-\item{cc.ony}{\code{logical} Do you want the output object to omit results
-with failed estimates (with NAs)? Remember that if you define
-\code{cc.only = TRUE} the number of elements returned may be less than
-specified in \code{nresamp}.}
+\item{cc.only}{\code{logical} Return complete cases only:  Do you want the
+output object to omit results with failed estimates (with NaNs)? Remember
+that if you define \code{cc.only = TRUE} the number of elements returned may
+be less than specified in \code{nresamp}.}
 }
 \value{
 A \code{data.frame} of fitted VBGF parameters (columns) by resampling
@@ -90,15 +134,17 @@ fishmethods::grotag(L1 = bonito$L1,
                     control = list(maxit = 1e4))
 
 # Run the example using grotag_boot
-grotag_boot(L1 = bonito$L1,
-            L2 = bonito$L2,
-            T1 = bonito$T1,
-            T2 = bonito$T2,
-            alpha = 35, beta = 55,
-            design  = list(nu = 1, m = 1,p = 1, sea = 1),
-            stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
-            upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
-            lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
-            control = list(maxit = 1e4),
-            nresamp = 10)
+res <- grotag_boot(L1 = bonito$L1,
+                   L2 = bonito$L2,
+                   T1 = bonito$T1,
+                   T2 = bonito$T2,
+                   alpha = 35, beta = 55,
+                   design  = list(nu = 1, m = 1,p = 1, sea = 1),
+                   stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
+                   upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
+                   lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
+                   control = list(maxit = 1e4),
+                   nresamp = 10)
+
+LinfK_scatterhist(res = res)
 }

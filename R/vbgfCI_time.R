@@ -2,7 +2,8 @@
 #'
 #' @description Pending...
 #'
-#' @param res Object of class \code{lfqBoot}.
+#' @param res Object with \eqn{L_{inf}}, \eqn{K} and \eqn{t_0}, it could be a
+#' \code{data.frame}, a \code{tbl_df}, a \code{list} or a \code{lfqBoot} object.
 #' @param CI \code{numeric}. Confidence interval in \% (default: 95).
 #' @param agemax \code{numeric} values indicating the maximum number of years to
 #' project.
@@ -20,6 +21,10 @@
 #' @param maxd.col,maxd.lty,maxd.lwd Color, type and width for maximum density line..
 #' @param ... Extra arguments passed to the main plot function.
 #'
+#' @details
+#' Additional details...
+#'
+#'
 #'
 #' @return A \code{list} containing:
 #' \describe{
@@ -35,10 +40,14 @@
 #' @export
 #'
 #' @examples
+#' data(alba_boot) # lfqBoot object
 #' vbgfCI_time(res = alba_boot)
 #'
 #' vbgfCI_time(res = alba_boot, CI = c(50, 95),
 #'             ci.col = c("red", "orange"))
+#'
+#' data(bonito_boot) # grotagBoot object
+#' LinfK_scatterhist(res = bonito_boot)
 vbgfCI_time <- function(res, CI = 95, agemax = NULL, plot = TRUE,
                         add_legend = TRUE, add_max_dens_legend = TRUE,
                         xlab = "Relative time", ylab = "Length",
@@ -46,26 +55,22 @@ vbgfCI_time <- function(res, CI = 95, agemax = NULL, plot = TRUE,
                         ci.col = "black", ci.lty = 2, ci.lwd = 1,
                         maxd.col = "black", maxd.lty = 1, maxd.lwd = 2, ...){
 
-  # Extract bootstrap results
-  res <- res$bootRaw
+  # Extract values of Linf, K and t_anchor from res
+  x <- get_LinfKtanchor(x = res)
 
   if(is.null(agemax)){
-    agemax <- max(ceiling((1/-res$K)*log(1-((res$Linf*0.95)/res$Linf))))
+    agemax <- max(ceiling((1/-x$K)*log(1-((x$Linf*0.95)/x$Linf))))
   }
 
-
-
   # remove phi' if included in res
-  phiLcol <- which(names(res) == "phiL")
-  x <- if(length(phiLcol > 0)) res[,-phiLcol] else res
-
-  d <- ncol(x)
+  # phiLcol <- which(names(res) == "phiL")
+  # x <- if(length(phiLcol > 0)) res[,-phiLcol] else res
 
   # First a fitting round to look for shifts in t_anchor
   age <- seq(from = 0, to = agemax, by = 0.01)
-  Lt0 <- matrix(data = NaN, nrow = length(age), ncol = nrow(x))
-  Lt_minus <- matrix(data = NaN, nrow = length(age), ncol = nrow(x))
-  Lt_plus <- matrix(data = NaN, nrow = length(age), ncol = nrow(x))
+  Lt0 <- matrix(data = NA, nrow = length(age), ncol = nrow(x))
+  Lt_minus <- matrix(data = NA, nrow = length(age), ncol = nrow(x))
+  Lt_plus <- matrix(data = NA, nrow = length(age), ncol = nrow(x))
 
   for(i in seq(ncol(Lt0))){
     par0 <- par_minus <- par_plus <- as.list(x[i,])
@@ -78,9 +83,9 @@ vbgfCI_time <- function(res, CI = 95, agemax = NULL, plot = TRUE,
   }
 
   # replace negative lengths with NA
-  Lt0 <- replace(x = Lt0, list = Lt0 < 0, values = NaN)
-  Lt_minus <- replace(x = Lt_minus, list = Lt_minus < 0, values = NaN)
-  Lt_plus <- replace(x = Lt_plus, list = Lt_plus < 0, values = NaN)
+  Lt0 <- replace(x = Lt0, list = Lt0 < 0, values = NA)
+  Lt_minus <- replace(x = Lt_minus, list = Lt_minus < 0, values = NA)
+  Lt_plus <- replace(x = Lt_plus, list = Lt_plus < 0, values = NA)
 
   # determine if a positive or negative shift improves overall covariance for each permutation
   cov0 <- cov(x = Lt0, use = "pair")
@@ -95,7 +100,7 @@ vbgfCI_time <- function(res, CI = 95, agemax = NULL, plot = TRUE,
   agenew <- seq(from = 0 + min(shift),
                 to = agemax + max(shift),
                 by = 0.01)
-  Lt <- matrix(data = NaN, nrow = length(agenew), ncol = nrow(x))
+  Lt <- matrix(data = NA, nrow = length(agenew), ncol = nrow(x))
 
   for(i in seq(ncol(Lt))){
     par0 <- as.list(x[i,])
@@ -129,7 +134,6 @@ vbgfCI_time <- function(res, CI = 95, agemax = NULL, plot = TRUE,
     box()
   }
 
-
   # Determine which resamples are in the CI
   limCI <- vector(mode = "list", length(CI))
   inCI <- vector(mode = "list", length(CI))
@@ -137,7 +141,7 @@ vbgfCI_time <- function(res, CI = 95, agemax = NULL, plot = TRUE,
 
   for(j in seq(limCI)){
     inCI[[j]] <- x$estimate > quantile(x = x$estimate, probs = (100 - CI[j])/100)
-    limCI[[j]] <- data.frame(t = agenew, min = NaN, max = NaN)
+    limCI[[j]] <- data.frame(t = agenew, min = NA, max = NA)
 
     for(i in seq(agenew)){
       limCI[[j]]$min[i] <- min(Lt[i, which(inCI[[j]]) ], na.rm = TRUE)
@@ -183,4 +187,39 @@ vbgfCI_time <- function(res, CI = 95, agemax = NULL, plot = TRUE,
 
   # Output
   if(isTRUE(plot)) invisible(out) else out
+}
+
+get_LinfKtanchor <- function(x){
+
+  # Define functions for extracting Linf, K and t_anchor values from several
+  # objects (classes)
+  getData <- list("tbl_df" = \(obj) obj,
+                  "tbl" = \(obj) obj,
+                  "data.frame" = \(obj) obj,
+                  # "grotagBoot" = \(obj) data.frame(obj, t_anchor = 0),
+                  "grotagBoot" = \(obj){
+                    data.frame(obj, t_anchor = rnorm(n = nrow(obj),
+                                                     mean = 0,
+                                                     sd = 1e-4))
+                  },
+                  "lfqBoot" = \(obj) obj$bootRaw)
+
+  # Searching the class of 'x' within the getData definitions
+  index <- match(x = class(x), table = names(getData))[1]
+
+  # If there is not a defined way (function) to extract Linf, K and t_anchor
+  # variables, return an error msg
+  if(is.na(index)){
+    sprintf(fmt = "Internal funtion 'get_LinfKtanchor' do not know how to extract Linf or K from a '%s' object.",
+            class(x)) |> stop()
+  }
+
+  # Extracting data an coerce to data.frame
+  out <- getData[[index]](x) |> as.data.frame()
+
+  # Set the column names as lowercase
+  colnames(out) <- tolower(colnames(out))
+
+  # Indexing Linf and K only and set standard column names
+  out[,c("linf", "k", "t_anchor")] |> setNames(c("Linf", "K", "t_anchor"))
 }

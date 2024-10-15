@@ -25,7 +25,8 @@ vbgfCI_time(
 )
 }
 \arguments{
-\item{res}{Object of class \code{lfqBoot}.}
+\item{res}{Object with \eqn{L_{inf}}, \eqn{K} and \eqn{t_0}, it could be a
+\code{data.frame}, a \code{tbl_df}, a \code{list} or a \code{lfqBoot} object.}
 
 \item{CI}{\code{numeric}. Confidence interval in \% (default: 95).}
 
@@ -69,9 +70,16 @@ A \code{list} containing:
 \description{
 Pending...
 }
+\details{
+Additional details...
+}
 \examples{
+data(alba_boot) # lfqBoot object
 vbgfCI_time(res = alba_boot)
 
 vbgfCI_time(res = alba_boot, CI = c(50, 95),
             ci.col = c("red", "orange"))
+
+data(bonito_boot) # grotagBoot object
+LinfK_scatterhist(res = bonito_boot)
 }

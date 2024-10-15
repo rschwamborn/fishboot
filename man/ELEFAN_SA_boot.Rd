@@ -6,10 +6,20 @@
 \usage{
 ELEFAN_SA_boot(
   lfq,
-  ...,
+  seasonalised = FALSE,
+  init_par = list(Linf = 50, K = 0.5, t_anchor = 0.5, C = 0, ts = 0),
+  low_par = NULL,
+  up_par = NULL,
+  SA_time = 60 * 1,
+  maxit = NULL,
+  nb.stop.improvement = NULL,
+  SA_temp = 1e+05,
+  MA = 5,
+  addl.sqrt = FALSE,
+  agemax = NULL,
+  seed = NULL,
   nresamp = 200,
   resample = TRUE,
-  seed = NULL,
   no_cores = 1,
   outfile = NA
 )
@@ -18,20 +28,77 @@ ELEFAN_SA_boot(
 \item{lfq}{a length frequency object of the class \code{lfq} (see
 \link[TropFishR]{lfqCreate}).}
 
-\item{...}{Extra arguments passed to \link[TropFishR]{ELEFAN_SA}:
-\code{seasonalised}, \code{init_par}, \code{low_par}, \code{up_par},
-\code{SA_time}, \code{maxit}, \code{nb.stop.improvement}, \code{SA_temp},
-\code{verbose}, \code{MA}, \code{addl.sqrt}, \code{agemax} and
-\code{flagging.out}. Default values remain the same and just \code{plot} and
-\code{plot.score} will be set as \code{FALSE}.}
+\item{seasonalised}{logical; indicating if the seasonalised von Bertalanffy
+growth function should be applied (default: FALSE).}
+
+\item{init_par}{a list providing the Initial values for the components to be
+optimized. When set to NULL the following default values are used:
+ \itemize{
+  \item \strong{Linf} length infinity in cm (default is the maximum
+  length class in the data),
+  \item \strong{K} curving coefficient (default: 0.5),
+  \item \strong{t_anchor} time point anchoring growth curves in year-length
+  coordinate system, corresponds to peak spawning month (range: 0 to 1,
+  default: 0.5),
+  \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
+  \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
+}}
+
+\item{low_par}{a list providing the lower bounds for components. When set to
+NULL the following default values are used:
+ \itemize{
+  \item \strong{Linf} length infinity in cm (default is calculated from maximum
+  length class in the data),
+  \item \strong{K} curving coefficient (default: 0.01),
+  \item \strong{t_anchor} time point anchoring growth curves in year-length
+  coordinate system, corresponds to peak spawning month (range: 0 to 1,
+  default: 0),
+  \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
+  \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
+}}
+
+\item{up_par}{a list providing the upper bounds for components. When set to
+NULL the following default values are used:
+ \itemize{
+  \item \strong{Linf} length infinity in cm (default is calculated from maximum
+  length class in the data),
+  \item \strong{K} curving coefficient (default: 0.01),
+  \item \strong{t_anchor} time point anchoring growth curves in year-length
+  coordinate system, corresponds to peak spawning month (range: 0 to 1,
+  default: 0),
+  \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
+  \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
+}}
+
+\item{SA_time}{numeric; Maximum running time in seconds (default : 60 * 1).}
+
+\item{maxit}{Integer. Maximum number of iterations of the algorithm. Default
+is NULL.}
+
+\item{nb.stop.improvement}{Integer. The program will stop when there is no
+any improvement in 'nb.stop.improvement' steps. Default is NULL}
+
+\item{SA_temp}{numeric; Initial value for temperature (default : 1e5).}
+
+\item{MA}{number indicating over how many length classes the moving average
+should be performed (defalut: 5, for more information see
+\link[TropFishR]{lfqRestructure}).}
+
+\item{addl.sqrt}{Passed to \link[TropFishR]{lfqRestructure}. Applied an
+additional square-root transformation of positive values according to Brey
+et al. (1988). (default: FALSE, for more information see
+\link[TropFishR]{lfqRestructure}).}
+
+\item{agemax}{maximum age of species; default NULL, then estimated from
+\eqn{L_{inf}}.}
+
+\item{seed}{seed value for random number reproducibility.}
 
 \item{nresamp}{\code{numeric}, the number of permutations to run (by default
 \code{nresamp = 200}).}
 
 \item{resample}{\code{logical}. Do you want that \code{lfq} object be
 resampled (\code{TRUE} by default).}
-
-\item{seed}{seed value for random number reproducibility.}
 
 \item{no_cores}{positive integer. If \code{no_cores} > 1, a 'parallel' package
 cluster with that many cores is created.}
@@ -41,7 +108,7 @@ progress of the permutation completions. If it is set as \code{false},
 \code{NA} or \code{NULL}, no file will be created.}
 }
 \value{
-An object of class `lfqBoot` containing 2 levels:
+An object of class \code{lfqBoot} containing 2 levels:
 \describe{
   \item{\code{$bootRaw}}{A \code{data.frame} of fitted VBGF parameters
   (columns) by resampling (rows).}
@@ -77,7 +144,7 @@ nresamp   <- 12
 res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
                       init_par = NULL, up_par = up_par, low_par = low_par,
                       SA_time = SA_time, SA_temp = SA_temp,
-                      nresamp = nresamp, seed = 1,
+                      nresamp = nresamp, seed = NULL,
                       parallel = TRUE, no_cores = parallel::detectCores() - 2)
 
 res
@@ -87,7 +154,7 @@ res
 res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
                       init_par = NULL, up_par = up_par, low_par = low_par,
                       SA_time = SA_time, SA_temp = SA_temp,
-                      nresamp = nresamp, seed = 1,
+                      nresamp = nresamp, seed = NULL,
                       parallel = FALSE)
 
 res

@@ -8,6 +8,10 @@
 #'
 #' @param lfq A length frequency object of the class \code{lfq}.
 #'
+#' @details
+#' Additional details...
+#'
+#'
 #' @return A resampled version of the \code{lfq} class dataset.
 #'
 #' @export

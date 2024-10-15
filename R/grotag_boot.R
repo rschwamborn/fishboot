@@ -15,21 +15,44 @@
 #' @param L1,L2,T1,T2 Name of the columns to be extracted from \code{input.data}
 #' and used by the \link[fishmethods]{grotag} function for the arguments
 #' \code{L1}, \code{L2}, \code{T1} and \code{T2}, respectively. See Details.
-#' @param ... Extra arguments passed to \link[fishmethods]{grotag}:
-#' \code{alpha}, \code{beta}, \code{design}, \code{stvalue}, \code{upper},
-#' \code{lower}, \code{st.ga}, \code{st.gb}, \code{st.galow}, \code{st.gaup},
-#' \code{st.gblow}, \code{st.gbup} and \code{control}. It is important for the
-#' user to indicate at least values of \code{alpha} and \code{beta}.
+#' @param alpha \code{numeric} value giving an arbitrary length alpha.
+#' @param beta \code{numeric} value giving an arbitrary length beta
+#' (\code{beta} > \code{alpha}).
+#' @param design \code{list} specifying the design of the model to estimate. Use
+#' 1 to designate whether a parameter(s) should be estimated. Type of parameters
+#' are:
+#' \itemize{
+#'  \item \code{nu}: growth variability (1 parameter).
+#'  \item \code{m}: bias parameter of measurement error (1 parameter).
+#'  \item \code{p}: outlier probability (1 parameter).
+#'  \item \code{sea}: seasonal variation (2 parameters: u and w).
+#' }
+#' Model 1 of Francis is the default settings of 0 for \code{nu}, \code{m},
+#' \code{p} and \code{sea}.
+#' @param stvalue Starting values of sigma(s) and depending on the \code{design}
+#' argument, \code{nu}, \code{m}, \code{p}, \code{u}, and \code{w} used as input
+#' in the nonlinear estimation (function \link[stats]{optim}) routine.
+#' @param upper,lower Upper and lower limits of the model parameters' (\code{nu},
+#' \code{m}, \code{p}, \code{u}, and \code{w}) region to be investigated.
+#' @param gestimate \code{logical} specifying whether starting values of
+#' \strong{ga} and \strong{gb} (growth increments of \code{alpha} and \code{beta})
+#' should be estimated automatically. \code{TRUE} by default.
+#' @param st.ga,st.gb If \code{gestimate=FALSE}, user-specified starting value
+#' for ga and gb respectively.
+#' @param st.galow,st.gaup If \code{gestimate=FALSE}, user-specified lower and
+#' upper limits for \code{st.ga} used in optimization.
+#' @param st.gblow,st.gbup If \code{gestimate=FALSE}, user-specified lower and
+#' upper limits for \code{st.gb} used in optimization.
+#' @param control Additional controls passed to the optimization function
+#' \link[stats]{optim}.
 #' @param input.data A growth increment object of the class \code{data.frame}.
+#' @param seed seed value for random number reproducibility.
 #' @param nresamp \code{numeric}; the number of permutations to run (Default:
 #' \code{nresamp = 200}).
-#' @param seed seed value for random number reproducibility.
-#' @param no_cores positive integer. If \code{no_cores} > 1, a 'parallel' package
-#' cluster with that many cores is created.
-#' @param cc.ony \code{logical} Do you want the output object to omit results
-#' with failed estimates (with NAs)? Remember that if you define
-#' \code{cc.only = TRUE} the number of elements returned may be less than
-#' specified in \code{nresamp}.
+#' @param cc.only \code{logical} Return complete cases only:  Do you want the
+#' output object to omit results with failed estimates (with NaNs)? Remember
+#' that if you define \code{cc.only = TRUE} the number of elements returned may
+#' be less than specified in \code{nresamp}.
 #'
 #' @details
 #' There are 2 ways to specify the main input arguments (related to the size and
@@ -67,26 +90,40 @@
 #'                     control = list(maxit = 1e4))
 #'
 #' # Run the example using grotag_boot
-#' grotag_boot(L1 = bonito$L1,
-#'             L2 = bonito$L2,
-#'             T1 = bonito$T1,
-#'             T2 = bonito$T2,
-#'             alpha = 35, beta = 55,
-#'             design  = list(nu = 1, m = 1,p = 1, sea = 1),
-#'             stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
-#'             upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
-#'             lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
-#'             control = list(maxit = 1e4),
-#'             nresamp = 10)
-grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL, ...,
-                        input.data = NULL, nresamp = 200, seed = 123,
-                        no_cores = 1, cc.ony = FALSE){
+#' res <- grotag_boot(L1 = bonito$L1,
+#'                    L2 = bonito$L2,
+#'                    T1 = bonito$T1,
+#'                    T2 = bonito$T2,
+#'                    alpha = 35, beta = 55,
+#'                    design  = list(nu = 1, m = 1,p = 1, sea = 1),
+#'                    stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
+#'                    upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
+#'                    lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
+#'                    control = list(maxit = 1e4),
+#'                    nresamp = 10)
+#'
+#' LinfK_scatterhist(res = res)
+grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
+                        alpha = NULL, beta = NULL,
+                        design = list(nu = 0, m = 0, p = 0, sea = 0),
+                        stvalue = list(sigma = 0.9, nu = 0.4, m = -1,
+                                       p = 0.1, u = 0.4, w = 0.4),
+                        upper = list(sigma = 5, nu = 1, m = 2,
+                                     p = 1, u = 1, w = 1),
+                        lower = list(sigma = 0, nu = 0, m = -2,
+                                     p = 0, u = 0, w = 0),
+                        gestimate = TRUE, st.ga = NULL,
+                        st.gb = NULL, st.galow = NULL,
+                        st.gaup = NULL, st.gblow = NULL,
+                        st.gbup = NULL, control = list(maxit = 10000),
+                        input.data = NULL,
+                        seed = as.numeric(Sys.time()), nresamp = 200,
+                        cc.only = FALSE, time_lim = 5*60){
 
   if(is.null(input.data)){
-    input.data <- do.call(what = cbind.data.frame,
-                          args = list(L1, L2, T1, T2))
+    input.data <- list(L1 = L1, L2 = L2, T1 = T1, T2 = T2) |>
 
-    colnames(input.data) <- c("L1", "L2", "T1", "T2")
+      do.call(what = cbind.data.frame)
   }else{
     if(is.null(L1)) L1 <- "L1"
     if(is.null(L2)) L2 <- "L2"
@@ -96,31 +133,20 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL, ...,
     input.data <- input.data[,c(L1, L2, T1, T2)]
   }
 
-  if(no_cores > 1){
+  # Empty results list
+  res <- vector(mode = "list", length = nresamp)
 
-    # Registering cluster
-    cl <- makeCluster(spec = no_cores)
-    registerDoParallel(cl = cl)
-
-    # Run multithread process
-    res <- foreach(x = seq(nresamp), .inorder = FALSE, .packages = "fishmethods") %dopar% {
-      tryCatch({
-        grotag_internal(input.data = input.data, x = x, seed = seed, ...)
-      }, error = \(e){NULL})
-    }
-
-    # Finish cluster
-    stopCluster(cl)
-  }else{
-
-    # Empty results list
-    res <- vector("list", nresamp)
-
-    for(x in seq(res)){
-      tryCatch({
-        res[[x]] <- grotag_internal(input.data = input.data, x = x, seed = seed, ...)
-      }, error = \(e){NULL}) |> suppressWarnings()
-    }
+  for(x in seq(nresamp)){
+    tryCatch({
+      res[[x]] <- grotag_internal(input.data = input.data, x = x, seed = seed,
+                                  alpha = alpha, beta = beta,
+                                  design = design, stvalue = stvalue,
+                                  upper = upper, lower = lower,
+                                  gestimate = gestimate, st.ga = st.ga,
+                                  st.gb = st.gb, st.galow = st.galow,
+                                  st.gaup = st.gaup, st.gblow = st.gblow,
+                                  st.gbup = st.gbup, control = control)
+    }, error = \(e){NULL}) |> suppressWarnings()
   }
 
   if(all(sapply(X = res, FUN = is.null))){
@@ -142,7 +168,7 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL, ...,
   colnames(res) <- c( "Linf", "K", "PhiL", "u", "w", "seed", "time")
 
   # Remove rows with NAs
-  if(isTRUE(cc.ony)) res <- res[complete.cases(res),]
+  if(isTRUE(cc.only)) res <- res[complete.cases(res),]
 
   # Define class
   class(res) <- c("grotagBoot", class(res))
@@ -150,10 +176,15 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL, ...,
   res
 }
 
-grotag_internal <- function(input.data, x, seed, ...){
+grotag_internal <- function(input.data, x, seed,
+                            alpha, beta, design, stvalue,
+                            upper, lower, gestimate,
+                            st.ga, st.gb,
+                            st.galow, st.gaup,
+                            st.gblow, st.gbup,
+                            control){
 
-  seed <- seed + x
-  set.seed(seed)
+  set.seed(seed + x)
 
   # Resampling rows
   samplerows <- sample(x = seq(nrow(input.data)),
@@ -163,13 +194,17 @@ grotag_internal <- function(input.data, x, seed, ...){
   input.data_p <- input.data[samplerows,]
 
   # Apply grotag function
-  fitboot <- formals(grotag) |>
-
-    modifyList(val = append(as.list(input.data_p), list(...))) |>
-
-    as.list() |>
-
-    do.call(what = grotag)
+  fitboot <- grotag(L1 = input.data_p$L1,
+                    L2 = input.data_p$L2,
+                    T1 = input.data_p$T1,
+                    T2 = input.data_p$T2,
+                    alpha = alpha, beta = beta,
+                    design = design, stvalue = stvalue,
+                    upper = upper, lower = lower,
+                    gestimate = gestimate, st.ga = st.ga,
+                    st.gb = st.gb, st.galow = st.galow,
+                    st.gaup = st.gaup, st.gblow = st.gblow,
+                    st.gbup = st.gbup, control = control)
 
   Linf <- as.numeric(fitboot$VBparms$Estimate[2])
   K <- as.numeric(fitboot$VBparms$Estimate[3])
@@ -179,6 +214,6 @@ grotag_internal <- function(input.data, x, seed, ...){
                PhiL = log10(K) + 2 * log10(Linf),
                u    = fitboot$table$Estimate[4],
                w    = fitboot$table$Estimate[5],
-               seed = seed),
+               seed = seed + x),
        time = as.character(Sys.time()))
 }

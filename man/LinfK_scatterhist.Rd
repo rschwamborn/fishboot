@@ -14,7 +14,7 @@ LinfK_scatterhist(
   shading.cols = NULL,
   dens.contour = TRUE,
   probs = c(25, 50, 75, 95),
-  phi.contour = FALSE,
+  phi.contour = TRUE,
   phi.levels = NULL,
   phi.contour.col = 8,
   phi.contour.lty = 2,
@@ -30,7 +30,8 @@ LinfK_scatterhist(
 )
 }
 \arguments{
-\item{res}{Object of class \code{lfqBoot}.}
+\item{res}{Object of class \code{data.frame}, \code{tbl_df}, \code{lfqBoot}
+or \code{grotagBoot}.}
 
 \item{Linf.breaks, K.breaks}{Arguments passed to \link[graphics]{hist}
 function to compute the breakpoints (argument \code{breaks}) for Linf and K
@@ -80,6 +81,9 @@ Pending...
 If NULL, it will be defined as \code{colorRampPalette(c("white", blues9))(1e3)}.
 }
 \examples{
-data(alba_boot)
+data(alba_boot) # lfqBoot object
 LinfK_scatterhist(res = alba_boot)
+
+data(bonito_boot) # grotagBoot object
+LinfK_scatterhist(res = bonito_boot)
 }

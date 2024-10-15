@@ -24,10 +24,10 @@ Authors:
 \itemize{
   \item Tobias K. Mildenberger \email{tobm@aqua.dtu.dk}
   \item Marc H. Taylor \email{marc.taylor@thuenen.de}
+  \item Margit Wilhelm \email{mwilhelm@unam.na} (\href{https://orcid.org/0000-0001-9271-2109}{ORCID})
   \item Matheus Barros \email{matheus.barrosteu@gmail.com}
   \item Wesley Neves \email{wesley.neves@ufpe.br}
   \item Matheus Assis de Oliveira \email{matheus.assis@ufpe.br}
-  \item Margit Wilhelm \email{mwilhelm@unam.na}
 }
 
 Other contributors:
