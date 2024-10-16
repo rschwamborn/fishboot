@@ -181,11 +181,11 @@ add_phiprime <- function(gridsize = 20, ...){
 get_LinfK <- function(x){
 
   # Define functions for extracting Linf and K values from several objects (classes)
-  getData <- list("tbl_df" = \(obj) obj,
-                  "tbl" = \(obj) obj,
+  getData <- list("tbl_df"     = \(obj) obj,
+                  "tbl"        = \(obj) obj,
                   "data.frame" = \(obj) obj,
                   "grotagBoot" = \(obj) obj,
-                  "lfqBoot" = \(obj) obj$bootRaw)
+                  "lfqBoot"    = \(obj) obj$bootRaw)
 
   # Searching the class of 'x' within the getData definitions
   index <- match(x = class(x), table = names(getData))[1]
@@ -204,5 +204,17 @@ get_LinfK <- function(x){
   colnames(out) <- tolower(colnames(out))
 
   # Indexing Linf and K only and set standard column names
-  out[,c("linf", "k")] |> setNames(c("Linf", "K"))
+  out <- out[,c("linf", "k")] |> setNames(c("Linf", "K"))
+
+  # Check NA values
+  index <- complete.cases(out)
+
+  if(sum(!index) > 0){
+    if(sum(!index) == nrow(out)) stop("All the rows contains NA values, imposible to work.")
+
+    sprintf("There are %i rows with NA values, they were removed in order to continue.",
+            sum(!index)) |> warning()
+  }
+
+  out[index,]
 }

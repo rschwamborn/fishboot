@@ -27,12 +27,23 @@
 #' @param seed seed value for random number reproducibility.
 #' @param nresamp \code{numeric}; the number of permutations to run (Default:
 #' \code{nresamp = 200}).
-#' @param no_cores positive integer. If \code{no_cores} > 1, a 'parallel' package
-#' cluster with that many cores is created.
-#' @param cc.only \code{logical} Return complete cases only:  Do you want the
-#' output object to omit results with failed estimates (with NaNs)? Remember
-#' that if you define \code{cc.only = TRUE} the number of elements returned may
-#' be less than specified in \code{nresamp}.
+#' @param nan_action \code{character} that defines the action that the function
+#' will execute if there is a row with NaN:
+#' \itemize{
+#'  \item \code{nothing}: the function will return the results including the NaNs
+#'  (default).
+#'  \item \code{nanrm} or \code{narm}: after having the results, it will only
+#'  returns the rows without NaNs. For an intercompatibility issue, for this
+#'  case \code{narm} and \code{nanrm} are equivalent, but it should be noted
+#'  that the function will look for and omit the NaNs (and not the NAs). See
+#'  Details.
+#'  \item \code{force}: The function will start an iterative process changing
+#'  the internal \code{seed} values until it fulfills the \code{nresamp}. It
+#'  works just together \code{time_lim} argument. See Details.
+#' }
+#' @param time_lim If \code{nan_action = "force"}, it defines the maximum time
+#' (in seconds) that the function will last resampling until it achieves a
+#' result output with no-NaN rows.
 #'
 #' @details
 #' CI and plotting arguments are set as \code{FALSE} for each bootstrap call
@@ -40,11 +51,21 @@
 #'
 #' By default, \link[TropFishR]{growth_length_age} generates a plot when is
 #' called, so internally \code{grolenage_boot} executes a
-#' \link[graphics]{dev.off} call in order to prevent it.
+#' \link[grDevices]{dev.off} call in order to prevent it.
 #'
 #' It is important to take into account the particular considerations of each
 #' method regarding the required parameters, so it is recommended to read the
 #' Details of the documentation of \link[TropFishR]{growth_length_age}.
+#'
+#' \code{nan_action = "force"} should be used carefully, as it is not always due
+#' to bootstrap data selection factors, but also to an inadequate selection of
+#' the estimation parameters that the \code{NaN} values are obtained. Also, the
+#' search time may depend on the size of the input set, if you have many
+#' thousands of individuals or if (in addition) the value of \code{nresamp} is
+#' high, it is possible that the function will take a long time before obtaining
+#' complete results. \code{time_lim} avoids falling into an infinite loop by
+#' limiting the time used by this process to 5 minutes, but this value is
+#' referential and may be insufficient due to the factors mentioned above.
 #'
 #' Some words about \eqn{t_{anchor} = t_0}...
 #'
@@ -74,23 +95,17 @@
 #'                        rnorm(n = 5, mean = 52.8, sd = 0.5),
 #'                        rnorm(n = 5, mean = 54.2, sd = 0.7)))
 #'
-#' growth_length_age(param = dat, method = "GullandHolt")
+#' TropFishR::growth_length_age(param = dat, method = "GullandHolt")
 #'
 #' res <- grolenage_boot(param = dat, method = "GullandHolt")
 #'
 #' # Plot scatterhist of Linf and K
 #' LinfK_scatterhist(res = res)
-#'
-#' # Bertalaffy plot
-#' res <- grolenage_boot(dat, method = "BertalanffyPlot", Linf_est = 50,
-#'                       nresamp = 100)
-#'
-#' vbgfCI_time(res = res)
 grolenage_boot <- function(param, method = "LSM",
                            Linf_est = NA, Linf_init = 10,
                            K_init = 0.1, t0_init = 0,
-                           seed = as.numeric(Sys.time()),
-                           nresamp = 200, no_cores = 1, cc.only = FALSE){
+                           seed = as.numeric(Sys.time()), nresamp = 200,
+                           nan_action = "nothing", time_lim = 5*60){
 
   # Coerce param to a list
   param <- as.list(param)
@@ -101,33 +116,33 @@ grolenage_boot <- function(param, method = "LSM",
   # Select only length and age variables
   param <- param[c("length", "age")]
 
-  if(no_cores > 1){
-    # Multicore way
-    # Registering cluster
-    cl <- makeCluster(spec = no_cores)
-    registerDoParallel(cl = cl)
+  res <- list()
+  nan_action <- tolower(nan_action)[1]
+  time_0 <- Sys.time()
+  x <- 0
+  while(length(res) < nresamp){
+    x <- x + 1
 
-    # Run multithread process
-    res <- foreach(x = seq(nresamp), .inorder = FALSE, .packages = "TropFishR") %dopar% {
-      tryCatch({
-        grolenage_internal(param = param, method = method, seed = seed, x = x,
-                           Linf_est = Linf_est, Linf_init = Linf_init,
-                           K_init = K_init, t0_init = t0_init)
-      }, error = \(e){NULL})
-    }
+    out <- grolenage_internal(param = param, method = method,
+                              seed = seed, x = x,
+                              Linf_est = Linf_est, Linf_init = Linf_init,
+                              K_init = K_init, t0_init = t0_init) |>
 
-    # Finish cluster
-    stopCluster(cl)
-  }else{
-    # Single core way
-    res <- vector(mode = "list", length = nresamp)
-    for(x in seq(nresamp)){
-      tryCatch({
-        res[[x]] <- grolenage_internal(param = param, method = method,
-                                       seed = seed, x = x,
-                                       Linf_est = Linf_est, Linf_init = Linf_init,
-                                       K_init = K_init, t0_init = t0_init)
-      }, error = \(e){NULL}) |> suppressWarnings()
+      suppressWarnings()
+
+
+    outnan <- any(is.nan(out$out))
+    if(!outnan || nan_action == "nothing"){
+      # Adding output as is
+      res <- c(res, list(out))
+    }else{
+      if(nan_action == "force"){
+        # Check time diff
+        t_diff <- difftime(time1 = Sys.time(), time2 = time_0, units = "secs")
+        if(t_diff >= time_lim) break
+      }else{
+        if(x == nresamp) break
+      }
     }
   }
 
@@ -137,19 +152,6 @@ grolenage_boot <- function(param, method = "LSM",
 
                 do.call(what = rbind) |> as.data.frame(),
               seed = lapply(X = res, FUN = \(x) x$seed) |> do.call(what = c))
-
-  # If cc.only is TRUE, indexing rows with non-NaN values
-  if(isTRUE(cc.only)){
-
-    index <- complete.cases(res$bootRaw)
-
-    if(sum(is.na(index)) == nresamp){
-      warning("All the resamples contain NaN values, try changing 'seed' of setting a larger value for 'nresamp'.")
-    }
-
-    res$bootRaw <- res$bootRaw[index,]
-    res$seed <- res$seed[index]
-  }
 
   message("t_anchor = t0")
 

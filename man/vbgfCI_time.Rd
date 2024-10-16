@@ -26,7 +26,8 @@ vbgfCI_time(
 }
 \arguments{
 \item{res}{Object with \eqn{L_{inf}}, \eqn{K} and \eqn{t_0}, it could be a
-\code{data.frame}, a \code{tbl_df}, a \code{list} or a \code{lfqBoot} object.}
+\code{data.frame}, a \code{tbl_df}, a \code{list}, \code{grotagBoot} or a
+\code{lfqBoot} object. See Details.}
 
 \item{CI}{\code{numeric}. Confidence interval in \% (default: 95).}
 
@@ -51,7 +52,7 @@ and \code{max_dens}. See Value for a detailed description of each one.}
 
 \item{ci.col, ci.lty, ci.lwd}{Color, type and width for CI line.}
 
-\item{maxd.col, maxd.lty, maxd.lwd}{Color, type and width for maximum density line..}
+\item{maxd.col, maxd.lty, maxd.lwd}{Color, type and width for maximum density line.}
 
 \item{...}{Extra arguments passed to the main plot function.}
 }
@@ -71,7 +72,9 @@ A \code{list} containing:
 Pending...
 }
 \details{
-Additional details...
+The \code{grotagBoot} objects, by default, do not contain values of
+\eqn{t_{anchor}} or \eqn{t_0}, so for those cases, random values with a normal
+distribution with mean \code{0} and sd \code{1e-4} will be added internally.
 }
 \examples{
 data(alba_boot) # lfqBoot object

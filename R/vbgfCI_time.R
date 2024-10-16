@@ -3,7 +3,8 @@
 #' @description Pending...
 #'
 #' @param res Object with \eqn{L_{inf}}, \eqn{K} and \eqn{t_0}, it could be a
-#' \code{data.frame}, a \code{tbl_df}, a \code{list} or a \code{lfqBoot} object.
+#' \code{data.frame}, a \code{tbl_df}, a \code{list}, \code{grotagBoot} or a
+#' \code{lfqBoot} object. See Details.
 #' @param CI \code{numeric}. Confidence interval in \% (default: 95).
 #' @param agemax \code{numeric} values indicating the maximum number of years to
 #' project.
@@ -18,11 +19,13 @@
 #' @param ylab Label for y-axis
 #' @param perm.col,perm.lwd Color and width for each resample estimate line.
 #' @param ci.col,ci.lty,ci.lwd Color, type and width for CI line.
-#' @param maxd.col,maxd.lty,maxd.lwd Color, type and width for maximum density line..
+#' @param maxd.col,maxd.lty,maxd.lwd Color, type and width for maximum density line.
 #' @param ... Extra arguments passed to the main plot function.
 #'
 #' @details
-#' Additional details...
+#' The \code{grotagBoot} objects, by default, do not contain values of
+#' \eqn{t_{anchor}} or \eqn{t_0}, so for those cases, random values with a normal
+#' distribution with mean \code{0} and sd \code{1e-4} will be added internally.
 #'
 #'
 #'
@@ -193,16 +196,15 @@ get_LinfKtanchor <- function(x){
 
   # Define functions for extracting Linf, K and t_anchor values from several
   # objects (classes)
-  getData <- list("tbl_df" = \(obj) obj,
-                  "tbl" = \(obj) obj,
+  getData <- list("tbl_df"     = \(obj) obj,
+                  "tbl"        = \(obj) obj,
                   "data.frame" = \(obj) obj,
                   # "grotagBoot" = \(obj) data.frame(obj, t_anchor = 0),
                   "grotagBoot" = \(obj){
-                    data.frame(obj, t_anchor = rnorm(n = nrow(obj),
-                                                     mean = 0,
-                                                     sd = 1e-4))
+                    data.frame(obj,
+                               t_anchor = rnorm(n = nrow(obj), mean = 0, sd = 1e-4))
                   },
-                  "lfqBoot" = \(obj) obj$bootRaw)
+                  "lfqBoot"    = \(obj) obj$bootRaw)
 
   # Searching the class of 'x' within the getData definitions
   index <- match(x = class(x), table = names(getData))[1]

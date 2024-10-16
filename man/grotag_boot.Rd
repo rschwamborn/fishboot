@@ -27,7 +27,7 @@ grotag_boot(
   input.data = NULL,
   seed = as.numeric(Sys.time()),
   nresamp = 200,
-  cc.only = FALSE,
+  na_action = "nothing",
   time_lim = 5 * 60
 )
 }
@@ -83,10 +83,21 @@ upper limits for \code{st.gb} used in optimization.}
 \item{nresamp}{\code{numeric}; the number of permutations to run (Default:
 \code{nresamp = 200}).}
 
-\item{cc.only}{\code{logical} Return complete cases only:  Do you want the
-output object to omit results with failed estimates (with NaNs)? Remember
-that if you define \code{cc.only = TRUE} the number of elements returned may
-be less than specified in \code{nresamp}.}
+\item{na_action}{\code{character} that defines the action that the function
+will execute if there is a row with NA:
+\itemize{
+ \item \code{nothing}: the function will return the results including the NAs
+ (default).
+ \item \code{narm}: after having the results, it will only returns the rows
+ without NAs. See Details.
+ \item \code{force}: The function will start an iterative process changing
+ the internal \code{seed} values until it fulfills the \code{nresamp}. It
+ works just together \code{time_lim} argument. See Details.
+}}
+
+\item{time_lim}{If \code{na_action = "force"}, it defines the maximum time
+(in seconds) that the function will last resampling until it achieves a
+result output with no-NaN rows.}
 }
 \value{
 A \code{data.frame} of fitted VBGF parameters (columns) by resampling
@@ -116,6 +127,16 @@ case, the arguments \code{L1}, \code{L2}, \code{T1} and \code{T2} must be
 names of the corresponding variables. If only one value is specified for
 \code{input.data} and any of the other arguments is NULL, a default name
 equal to the variable name will be assigned (e.g. \code{L1 <- “L1”}).
+
+\code{na_action = "force"} should be used carefully, as it is not always due
+to bootstrap data selection factors, but also to an inadequate selection of
+the estimation parameters that the \code{NA} values are obtained. Also, the
+search time may depend on the size of the input set, if you have many
+thousands of individuals or if (in addition) the value of \code{nresamp} is
+high, it is possible that the function will take a long time before obtaining
+complete results. \code{time_lim} avoids falling into an infinite loop by
+limiting the time used by this process to 5 minutes, but this value is
+referential and may be insufficient due to the factors mentioned above.
 }
 \examples{
 # Load example DB from fishmethods package
@@ -144,7 +165,7 @@ res <- grotag_boot(L1 = bonito$L1,
                    upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
                    lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
                    control = list(maxit = 1e4),
-                   nresamp = 10)
+                   nresamp = 10, na_action = "narm")
 
 LinfK_scatterhist(res = res)
 }

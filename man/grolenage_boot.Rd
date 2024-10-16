@@ -13,8 +13,8 @@ grolenage_boot(
   t0_init = 0,
   seed = as.numeric(Sys.time()),
   nresamp = 200,
-  no_cores = 1,
-  cc.only = FALSE
+  nan_action = "nothing",
+  time_lim = 5 * 60
 )
 }
 \arguments{
@@ -46,13 +46,24 @@ fitting (default 10).}
 \item{nresamp}{\code{numeric}; the number of permutations to run (Default:
 \code{nresamp = 200}).}
 
-\item{no_cores}{positive integer. If \code{no_cores} > 1, a 'parallel' package
-cluster with that many cores is created.}
+\item{nan_action}{\code{character} that defines the action that the function
+will execute if there is a row with NaN:
+\itemize{
+ \item \code{nothing}: the function will return the results including the NaNs
+ (default).
+ \item \code{nanrm} or \code{narm}: after having the results, it will only
+ returns the rows without NaNs. For an intercompatibility issue, for this
+ case \code{narm} and \code{nanrm} are equivalent, but it should be noted
+ that the function will look for and omit the NaNs (and not the NAs). See
+ Details.
+ \item \code{force}: The function will start an iterative process changing
+ the internal \code{seed} values until it fulfills the \code{nresamp}. It
+ works just together \code{time_lim} argument. See Details.
+}}
 
-\item{cc.only}{\code{logical} Return complete cases only:  Do you want the
-output object to omit results with failed estimates (with NaNs)? Remember
-that if you define \code{cc.only = TRUE} the number of elements returned may
-be less than specified in \code{nresamp}.}
+\item{time_lim}{If \code{nan_action = "force"}, it defines the maximum time
+(in seconds) that the function will last resampling until it achieves a
+result output with no-NaN rows.}
 }
 \value{
 An object of class \code{lfqBoot} containing 2 levels:
@@ -79,11 +90,21 @@ here.
 
 By default, \link[TropFishR]{growth_length_age} generates a plot when is
 called, so internally \code{grolenage_boot} executes a
-\link[graphics]{dev.off} call in order to prevent it.
+\link[grDevices]{dev.off} call in order to prevent it.
 
 It is important to take into account the particular considerations of each
 method regarding the required parameters, so it is recommended to read the
 Details of the documentation of \link[TropFishR]{growth_length_age}.
+
+\code{nan_action = "force"} should be used carefully, as it is not always due
+to bootstrap data selection factors, but also to an inadequate selection of
+the estimation parameters that the \code{NaN} values are obtained. Also, the
+search time may depend on the size of the input set, if you have many
+thousands of individuals or if (in addition) the value of \code{nresamp} is
+high, it is possible that the function will take a long time before obtaining
+complete results. \code{time_lim} avoids falling into an infinite loop by
+limiting the time used by this process to 5 minutes, but this value is
+referential and may be insufficient due to the factors mentioned above.
 
 Some words about \eqn{t_{anchor} = t_0}...
 }
@@ -98,16 +119,10 @@ dat <- list(age = rep(x = 1:7,each = 5),
                        rnorm(n = 5, mean = 52.8, sd = 0.5),
                        rnorm(n = 5, mean = 54.2, sd = 0.7)))
 
-growth_length_age(param = dat, method = "GullandHolt")
+TropFishR::growth_length_age(param = dat, method = "GullandHolt")
 
 res <- grolenage_boot(param = dat, method = "GullandHolt")
 
 # Plot scatterhist of Linf and K
 LinfK_scatterhist(res = res)
-
-# Bertalaffy plot
-res <- grolenage_boot(dat, method = "BertalanffyPlot", Linf_est = 50,
-                      nresamp = 100)
-
-vbgfCI_time(res = res)
 }

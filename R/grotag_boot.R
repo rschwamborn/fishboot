@@ -49,10 +49,20 @@
 #' @param seed seed value for random number reproducibility.
 #' @param nresamp \code{numeric}; the number of permutations to run (Default:
 #' \code{nresamp = 200}).
-#' @param cc.only \code{logical} Return complete cases only:  Do you want the
-#' output object to omit results with failed estimates (with NaNs)? Remember
-#' that if you define \code{cc.only = TRUE} the number of elements returned may
-#' be less than specified in \code{nresamp}.
+#' @param na_action \code{character} that defines the action that the function
+#' will execute if there is a row with NA:
+#' \itemize{
+#'  \item \code{nothing}: the function will return the results including the NAs
+#'  (default).
+#'  \item \code{narm}: after having the results, it will only returns the rows
+#'  without NAs. See Details.
+#'  \item \code{force}: The function will start an iterative process changing
+#'  the internal \code{seed} values until it fulfills the \code{nresamp}. It
+#'  works just together \code{time_lim} argument. See Details.
+#' }
+#' @param time_lim If \code{na_action = "force"}, it defines the maximum time
+#' (in seconds) that the function will last resampling until it achieves a
+#' result output with no-NaN rows.
 #'
 #' @details
 #' There are 2 ways to specify the main input arguments (related to the size and
@@ -65,6 +75,16 @@
 #' names of the corresponding variables. If only one value is specified for
 #' \code{input.data} and any of the other arguments is NULL, a default name
 #' equal to the variable name will be assigned (e.g. \code{L1 <- “L1”}).
+#'
+#' \code{na_action = "force"} should be used carefully, as it is not always due
+#' to bootstrap data selection factors, but also to an inadequate selection of
+#' the estimation parameters that the \code{NA} values are obtained. Also, the
+#' search time may depend on the size of the input set, if you have many
+#' thousands of individuals or if (in addition) the value of \code{nresamp} is
+#' high, it is possible that the function will take a long time before obtaining
+#' complete results. \code{time_lim} avoids falling into an infinite loop by
+#' limiting the time used by this process to 5 minutes, but this value is
+#' referential and may be insufficient due to the factors mentioned above.
 #'
 #'
 #' @return A \code{data.frame} of fitted VBGF parameters (columns) by resampling
@@ -100,7 +120,7 @@
 #'                    upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
 #'                    lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
 #'                    control = list(maxit = 1e4),
-#'                    nresamp = 10)
+#'                    nresamp = 10, na_action = "narm")
 #'
 #' LinfK_scatterhist(res = res)
 grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
@@ -118,7 +138,7 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
                         st.gbup = NULL, control = list(maxit = 10000),
                         input.data = NULL,
                         seed = as.numeric(Sys.time()), nresamp = 200,
-                        cc.only = FALSE, time_lim = 5*60){
+                        na_action = "nothing", time_lim = 5*60){
 
   if(is.null(input.data)){
     input.data <- list(L1 = L1, L2 = L2, T1 = T1, T2 = T2) |>
@@ -134,26 +154,40 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
   }
 
   # Empty results list
-  res <- vector(mode = "list", length = nresamp)
+  res <- list()
+  na_action <- tolower(na_action)[1]
+  time_0 <- Sys.time()
+  x <- 0
+  while(length(res) < nresamp){
+    x <- x + 1
 
-  for(x in seq(nresamp)){
-    tryCatch({
-      res[[x]] <- grotag_internal(input.data = input.data, x = x, seed = seed,
-                                  alpha = alpha, beta = beta,
-                                  design = design, stvalue = stvalue,
-                                  upper = upper, lower = lower,
-                                  gestimate = gestimate, st.ga = st.ga,
-                                  st.gb = st.gb, st.galow = st.galow,
-                                  st.gaup = st.gaup, st.gblow = st.gblow,
-                                  st.gbup = st.gbup, control = control)
+    out <- tryCatch({
+      grotag_internal(input.data = input.data, x = x, seed = seed,
+                      alpha = alpha, beta = beta,
+                      design = design, stvalue = stvalue,
+                      upper = upper, lower = lower,
+                      gestimate = gestimate, st.ga = st.ga,
+                      st.gb = st.gb, st.galow = st.galow,
+                      st.gaup = st.gaup, st.gblow = st.gblow,
+                      st.gbup = st.gbup, control = control)
     }, error = \(e){NULL}) |> suppressWarnings()
+
+
+    outnull <- is.null(out)
+    if(!outnull || na_action == "nothing"){
+      # Adding output as is
+      res <- c(res, list(out))
+    }else{
+      if(na_action == "force"){
+        # Check time diff
+        t_diff <- difftime(time1 = Sys.time(), time2 = time_0, units = "secs")
+        if(t_diff >= time_lim) break
+      }else{
+        if(x == nresamp) break
+      }
+    }
   }
 
-  if(all(sapply(X = res, FUN = is.null))){
-    warning("All the resamples got fitting problems with grotag. See ?grotag_boot.")
-
-    return(NULL)
-  }
 
   # Compile results in a data.frame
   res <- lapply(X = res, FUN = \(x) if(is.null(x$res)) rep(NA, 6) else x$res) |>
@@ -166,9 +200,6 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
 
   # Define column names
   colnames(res) <- c( "Linf", "K", "PhiL", "u", "w", "seed", "time")
-
-  # Remove rows with NAs
-  if(isTRUE(cc.only)) res <- res[complete.cases(res),]
 
   # Define class
   class(res) <- c("grotagBoot", class(res))
