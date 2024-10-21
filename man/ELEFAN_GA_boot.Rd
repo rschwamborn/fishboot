@@ -20,7 +20,7 @@ ELEFAN_GA_boot(
   agemax = NULL,
   ...,
   seed = NULL,
-  nresamp = 200,
+  nresamp = 10,
   resample = TRUE,
   no_cores = 1,
   outfile = NA
@@ -91,7 +91,7 @@ according to Brey et al. (1988) (default: FALSE, for
 \item{seed}{seed value for random number reproducibility.}
 
 \item{nresamp}{\code{numeric}, the number of permutations to run (by default
-\code{nresamp = 200}).}
+\code{nresamp = 10}).}
 
 \item{resample}{\code{logical}. Do you want that \code{lfq} object be
 resampled (\code{TRUE} by default).}
@@ -113,14 +113,22 @@ An object of class \code{lfqBoot} containing 2 levels:
 }
 }
 \description{
-This function performs a bootstrapped fitting of von Bertalanffy
-growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_GA}} function.
-Most of the arguments are simply passed to the function within many
-permutations (resampling) of the original \code{lfq} data.
+This function performs a bootstrapped fitting of a von
+Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_GA}}
+function. Most of the arguments are simply passed to the function within many
+permutations (resampling) of the original \code{lfq} data. As the original
+function, \code{ELEFAN_GA} also conducts Electronic LEngth Frequency ANalysis
+using a genetic algorithm (GA) to estimate growth parameters. Partial
+(repeated fitting on original data) and full bootstrap (with resampling)
+routines are possible, depending on \code{resample}.
 }
 \details{
-If \code{resample = FALSE}, a \strong{partial bootstrap} is performed,
-reflecting solution variation due only to the search algorithm.
+If \code{resample = TRUE}, a \strong{full non-parametric bootstrap} is
+performed with resampling from the original length-frequencies by using the
+function \link{lfqResample}. Otherwise, if \code{resample = FALSE}, a partial
+bootstrap is performed, reflecting solution variation due only to the search
+algorithm, with repeated fitting to the original data (no resampling is
+performed).
 }
 \examples{
 \dontrun{
@@ -161,5 +169,35 @@ res
 
 # Plot scatterhist of Linf and K
 LinfK_scatterhist(res = res)
+}
+}
+\references{
+\itemize{
+ \item Brey, T., Soriano, M., and Pauly, D. 1988. Electronic length frequency
+analysis: a revised and expanded user's guide to ELEFAN 0, 1 and 2.
+ \item Efron, B., & Tibshirani, R. (1986). Bootstrap methods for standard
+errors, confidence intervals, and other measures of statistical accuracy.
+Statistical Science, 54-75.
+ \item Mildenberger, T., Taylor, M. H., & Wolff, A. M., 2017. TropFishR: an R
+package for fisheries analysis with length-frequency data. Methods in Ecology
+and Evolution, 8(11), 1520-1527.
+ \item Pauly, D. 1981. The relationship between gill surface area and growth
+performance in fish: a generalization of von Bertalanffy's theory of growth.
+Meeresforsch. 28:205-211.
+ \item Pauly, D. and N. David, 1981. ELEFAN I, a BASIC program for the
+objective extraction of growth parameters from length-frequency data.
+Meeresforschung, 28(4):205-211.
+ \item Schwamborn, R., Mildenberger, T. K., & Taylor, M. H., 2019. Assessing
+sources of uncertainty in length-based estimates of body growth in
+populations of fishes and macroinvertebrates with bootstrapped ELEFAN.
+Ecological Modelling, 393, 37-51.
+ \item Schwamborn, R., Freitas, M. O., Moura, R. L., & Aschenbrenner, A. 2023.
+Comparing the accuracy and precision of novel bootstrapped length-frequency
+and length-at-age (otolith) analyses, with a case study of lane snapper
+(\emph{Lutjanus synagris}) in the SW Atlantic. Fisheries Research, 264, 106735.
+ \item Scrucca, L., 2013. GA: a package for genetic algorithms in R. Journal
+of Statistical Software, 53(4), 1-37.
+ \item von Bertalanffy, L., 1938. A quantitative theory of organic growth.
+Human Biology 10, 181-213.
 }
 }

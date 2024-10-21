@@ -19,9 +19,6 @@ of the original data, allowing for individual counts to be selected more than
 once (i.e. \code{replace = TRUE} in \link[base]{sample}), and resulting in
 total counts (by sample) equal to the original data.
 }
-\details{
-Additional details...
-}
 \examples{
 # Load data
 data("alba", package = "TropFishR")

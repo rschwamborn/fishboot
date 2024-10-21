@@ -2,8 +2,7 @@
 % Please edit documentation in R/grotag_boot.R
 \name{grotag_boot}
 \alias{grotag_boot}
-\title{Resampling of growth increment data (\eqn{\frac{dL}{dt}}) from
-mark-recapture (tagging) studies}
+\title{Bootstrapped tag-and-recapture growth analysis}
 \usage{
 grotag_boot(
   L1 = NULL,
@@ -25,7 +24,7 @@ grotag_boot(
   st.gbup = NULL,
   control = list(maxit = 10000),
   input.data = NULL,
-  seed = as.numeric(Sys.time()),
+  seed = NULL,
   nresamp = 200,
   na_action = "nothing",
   time_lim = 5 * 60
@@ -78,7 +77,8 @@ upper limits for \code{st.gb} used in optimization.}
 
 \item{input.data}{A growth increment object of the class \code{data.frame}.}
 
-\item{seed}{seed value for random number reproducibility.}
+\item{seed}{seed value for random number reproducibility (if it \code{NULL}
+by default, it will set internally as \code{seed = as.numeric(Sys.time())}).}
 
 \item{nresamp}{\code{numeric}; the number of permutations to run (Default:
 \code{nresamp = 200}).}
@@ -105,9 +105,18 @@ A \code{data.frame} of fitted VBGF parameters (columns) by resampling
 resampling call.
 }
 \description{
+This function performs bootstrapped fitting of the von Bertalanffy growth
+function (VBGF) with estimated growth parameters (\eqn{L_{inf}}, \eqn{K} and
+\eqn{t_0}) from tag-and-recapture data, based on the function
+\link[fishmethods]{grotag}, that estimates VBGF parameters according to
+Francis (1988). The output is an object containing the parameters
+\eqn{L_{inf}} and \eqn{K}, as well as the growth performance index
+\eqn{Phi’} (named \code{PhiL}).
+
+
 This function resamples the \code{input.data} data by rows (i.e.,
 by recapture date) several times (\code{nresamp} times, default:
-\code{nresamp = 200}). Then, a VBGF curve is fitted to each resapled data set.
+\code{nresamp = 200}). Then, a VBGF curve is fitted to each resampled data set.
 The output (a \code{list} of class \code{lfqBoot}) will store results (e.g.,
 VGBGF function parameters K and Linf) in a \code{data.frame} accessible
 through \code{$bootRaw}. The \code{$bootRaw} table also includes the growth
@@ -168,4 +177,27 @@ res <- grotag_boot(L1 = bonito$L1,
                    nresamp = 10, na_action = "narm")
 
 LinfK_scatterhist(res = res)
+}
+\references{
+\itemize{
+ \item Efron, B., & Tibshirani, R., 1986. Bootstrap methods for standard
+ errors, confidence intervals, and other measures of statistical accuracy.
+ Statistical Science, 54-75.
+ \item Francis, R.I.C.C., 1988. Maximum likelihood estimation of growth and
+ growth variability from tagging data. New Zealand Journal of Marine and
+ Freshwater Research, 22, p.42-51.
+ \item Pauly, D., 1981. The relationship between gill surface area and growth
+ performance in fish: a generalization of von Bertalanffy's theory of growth.
+ Meeresforsch. 28:205-211.
+ \item Schwamborn, R., Mildenberger, T. K., & Taylor, M. H., 2019. Assessing
+ sources of uncertainty in length-based estimates of body growth in
+ populations of fishes and macroinvertebrates with bootstrapped ELEFAN.
+ Ecological Modelling, 393, 37-51.
+ \item Schwamborn, R. & Schwamborn, D. F. M. C. Growth and mortality of the
+ endangered land crab \emph{Cardisoma guanhumi} assessed through tagging with
+ PITs and novel bootstrapped methods. Pan-American Journal of Aquatic
+ Sciences, 16(1): 57-78.
+ \item von Bertalanffy, L., 1938. A quantitative theory of organic growth.
+ Human Biology 10, 181-213.
+}
 }

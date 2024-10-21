@@ -8,10 +8,10 @@ grolenage_boot(
   param,
   method = "LSM",
   Linf_est = NA,
-  Linf_init = 10,
+  Linf_init = 100,
   K_init = 0.1,
   t0_init = 0,
-  seed = as.numeric(Sys.time()),
+  seed = NULL,
   nresamp = 200,
   nan_action = "nothing",
   time_lim = 5 * 60
@@ -21,19 +21,21 @@ grolenage_boot(
 \item{param}{a \code{list} (or \code{data.frame}) consisting of following
 parameters (levels/columns):
 \itemize{
-  \item \strong{age}: age measurements,
-  \item \strong{length}: corresponding lengths in cm.
+  \item \strong{age}: age measurements (e.g. from otoliths),
+  \item \strong{length}: corresponding length measurements.
 }}
 
 \item{method}{indicating which of following methods should be applied:
 \code{"GullandHolt"}, \code{"FordWalford"}, \code{"Chapman"},
-\code{"BertalanffyPlot"}, or \code{"LSM"} (default).}
+\code{"BertalanffyPlot"}, or \code{"LSM"} (it corresponds to the non-linear
+least squares fitting method, and is the default, which is recommended for
+bootstrapping growth).}
 
 \item{Linf_est}{BertalanffyPlot requires an estimate for \eqn{L_{inf}} to
 derive \eqn{K} and \eqn{t_0} (for more information see Details).}
 
 \item{Linf_init}{initital parameter of \eqn{L_{inf}} for non-linear sqaures
-fitting (default 10).}
+fitting (default 100).}
 
 \item{K_init}{initital parameter of \eqn{K} for non-linear sqaures fitting
 (default 0.1).}
@@ -41,29 +43,30 @@ fitting (default 10).}
 \item{t0_init}{initital parameter of \eqn{L_0} for non-linear squares fitting
 (default 0).}
 
-\item{seed}{seed value for random number reproducibility.}
+\item{seed}{seed value for random number reproducibility (if it \code{NULL}
+by default, it will set internally as \code{seed = as.numeric(Sys.time())}).}
 
 \item{nresamp}{\code{numeric}; the number of permutations to run (Default:
 \code{nresamp = 200}).}
 
 \item{nan_action}{\code{character} that defines the action that the function
-will execute if there is a row with NaN:
+will execute if there is a row with \code{NaN} (growth rate parameters
+inestimable for that resample):
 \itemize{
- \item \code{nothing}: the function will return the results including the NaNs
- (default).
+ \item \code{nothing}: the function will return the results including the
+ \code{NaN}s (default).
  \item \code{nanrm} or \code{narm}: after having the results, it will only
- returns the rows without NaNs. For an intercompatibility issue, for this
- case \code{narm} and \code{nanrm} are equivalent, but it should be noted
- that the function will look for and omit the NaNs (and not the NAs). See
- Details.
+ returns the rows without \code{NaN}s. For this case \code{narm} and
+ \code{nanrm} are equivalent, but it should be noted that the function will
+ look for and omit the \code{NaN}s (and not the \code{NA}s). See Details.
  \item \code{force}: The function will start an iterative process changing
  the internal \code{seed} values until it fulfills the \code{nresamp}. It
- works just together \code{time_lim} argument. See Details.
+ only works together with the \code{time_lim} argument. See Details.
 }}
 
 \item{time_lim}{If \code{nan_action = "force"}, it defines the maximum time
 (in seconds) that the function will last resampling until it achieves a
-result output with no-NaN rows.}
+result output with no-\code{NaN} rows.}
 }
 \value{
 An object of class \code{lfqBoot} containing 2 levels:
@@ -73,40 +76,48 @@ An object of class \code{lfqBoot} containing 2 levels:
   \item{\code{$seed}}{A \code{numeric} vector of seed values set prior to each
   resampling call.}
 }
-
-\code{t_anchor} (or \code{t0} in \link[TropFishR]{growth_length_age}) will be
-only available for Bertalanffy plot and LSM method, otherwise a vector of
-zeroes will be returned instead.
 }
 \description{
-This function estimates growth parameters from length-at-age data.
+This function performs growth parameters from length-at-age data.
 Since it internally uses the function \link[TropFishR]{growth_length_age},
 this function allows to perform different methods: Gulland and Holt, Ford
 Walford, Chapman, Bertalanffy, or non linear least squares method (LSM).
+
+This function performs bootstrapped fitting of the von Bertalanffy growth
+function with estimated growth parameters (\eqn{L_{inf}}, \eqn{K} and
+\eqn{t_0}) from length-at-age data, based on the function
+\link[TropFishR]{growth_length_age}. The output is an object containing the
+parameters \eqn{L_{inf}}, \eqn{K} and \eqn{t_0} (named here \code{t_anchor})
+as well as the growth performance index \eqn{Phi’} (named \code{PhiL}).
 }
 \details{
-CI and plotting arguments are set as \code{FALSE} for each bootstrap call
-here.
-
-By default, \link[TropFishR]{growth_length_age} generates a plot when is
-called, so internally \code{grolenage_boot} executes a
-\link[grDevices]{dev.off} call in order to prevent it.
-
 It is important to take into account the particular considerations of each
 method regarding the required parameters, so it is recommended to read the
 Details of the documentation of \link[TropFishR]{growth_length_age}.
 
-\code{nan_action = "force"} should be used carefully, as it is not always due
-to bootstrap data selection factors, but also to an inadequate selection of
-the estimation parameters that the \code{NaN} values are obtained. Also, the
-search time may depend on the size of the input set, if you have many
-thousands of individuals or if (in addition) the value of \code{nresamp} is
-high, it is possible that the function will take a long time before obtaining
-complete results. \code{time_lim} avoids falling into an infinite loop by
-limiting the time used by this process to 5 minutes, but this value is
-referential and may be insufficient due to the factors mentioned above.
+CI and plotting arguments (of \link[TropFishR]{growth_length_age}) are set as
+\code{FALSE} for each bootstrap call here. By default,
+\link[TropFishR]{growth_length_age} generates a plot when it is called, so
+internally \code{grolenage_boot} executes a \code{dev.off} call in order to
+prevent it.
 
-Some words about \eqn{t_{anchor} = t_0}...
+\code{nan_action = "force"} should be used carefully, as estimated \code{NaN}
+VBGF parameter values are not always a result of bootstrap data selection
+factors. Few resamples should first be tested with different \code{Linf_init},
+\code{K_init} and \code{t0_init} values. No selection of the realistic initial
+parameters may also result in \code{NaN} values being obtained. The search
+time may depend on the size of the input set. For example, if you have many
+thousands of individuals or if (in addition) the value of \code{nresamp} is
+too high, it is possible that the function will take a long time before
+obtaining complete results. Even though \code{time_lim} avoids falling into
+an infinite loop by limiting the time used by this process to 5 minutes, this
+value is referential and might be insufficient due to the factors mentioned
+above.
+
+\code{t_anchor} is the true \eqn{t_0} estimate in the case of true
+length-at-age data, but it will only be available from "BertalanffyPlot" or
+"LSM" methods. For the other methods, a vector of \code{NA}s will be returned
+instead.
 }
 \examples{
 # Synthetical length at age data
@@ -119,10 +130,40 @@ dat <- list(age = rep(x = 1:7,each = 5),
                        rnorm(n = 5, mean = 52.8, sd = 0.5),
                        rnorm(n = 5, mean = 54.2, sd = 0.7)))
 
-TropFishR::growth_length_age(param = dat, method = "GullandHolt")
+# Perform bootstrapped curve fitting with grolenage_boot
+res <- grolenage_boot(param = dat, nresamp = 100)
 
-res <- grolenage_boot(param = dat, method = "GullandHolt")
-
-# Plot scatterhist of Linf and K
+# Plot scatter histograms of Linf and K
 LinfK_scatterhist(res = res)
+
+# Plot univariate density plots of all parameters
+univariate_density(res = res)
+
+# Plot swarm plots of all n bootstraps
+vbgfCI_time(res = res)
+
+# Extract data.frame with all parameter estimates
+# for comparisons of posterior distributions
+print(res$bootRaw)
+}
+\references{
+\itemize{
+ \item Efron, B., & Tibshirani, R., 1986. Bootstrap methods for standard
+ errors, confidence intervals, and other measures of statistical accuracy.
+ Statistical Science, 54-75.
+ \item Pauly, D. 1981. The relationship between gill surface area and growth
+ performance in fish: a generalization of von Bertalanffy's theory of growth.
+ Meeresforsch. 28:205-211.
+ \item Schwamborn, R., Mildenberger, T. K., & Taylor, M. H., 2019. Assessing
+ sources of uncertainty in length-based estimates of body growth in
+ populations of fishes and macroinvertebrates with bootstrapped ELEFAN.
+ Ecological Modelling, 393, 37-51.
+ \item Schwamborn, R., Freitas, M. O., Moura, R. L., & Aschenbrenner, A. 2023.
+ Comparing the accuracy and precision of novel bootstrapped length-frequency
+ and length-at-age (otolith) analyses, with a case study of lane snapper
+ (\emph{Lutjanus synagris}) in the SW Atlantic. Fisheries Research, 264,
+ 106735.
+ \item von Bertalanffy, L., 1938. A quantitative theory of organic growth.
+ Human Biology 10, 181-213.
+}
 }
