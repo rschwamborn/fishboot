@@ -12,6 +12,7 @@ ELEFAN_GA_boot(
   popSize = 50,
   maxiter = 100,
   run = maxiter,
+  parallel = FALSE,
   pmutation = 0.1,
   pcrossover = 0.8,
   elitism = base::max(1, round(popSize * 0.05)),
@@ -65,7 +66,16 @@ following default values are used:
 GA search is halted. default:100}
 
 \item{run}{the number of consecutive generations without any improvement
-in the best fitness value before the GA is stopped. Default: equals maxiter}
+in the best fitness value before the GA is stopped. Default: equals
+\code{maxiter}.}
+
+\item{parallel}{A \code{logical} argument specifying if parallel computing
+should be used (TRUE) or not for evaluating the fitness function. See
+\code{\link[GA]{ga}} for details. By default, \code{FALSE}, but setting to
+TRUE may substantially improve required calculation time. If
+\code{no_cores > 1}, the parallel functionality will be passed to the
+bootstrapping process, so internal \code{ELEFAN_GA} calls will run with
+\code{parallel = FALSE}.}
 
 \item{pmutation}{the probability of mutation in a parent chromosome.
 Usually mutation occurs with a small probability, and by default is set to 0.1.}

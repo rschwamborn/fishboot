@@ -42,7 +42,15 @@
 #' @param maxiter the maximum number of iterations to run before the
 #' GA search is halted. default:100
 #' @param run the number of consecutive generations without any improvement
-#' in the best fitness value before the GA is stopped. Default: equals maxiter
+#' in the best fitness value before the GA is stopped. Default: equals
+#' \code{maxiter}.
+#' @param parallel A \code{logical} argument specifying if parallel computing
+#' should be used (TRUE) or not for evaluating the fitness function. See
+#' \code{\link[GA]{ga}} for details. By default, \code{FALSE}, but setting to
+#' TRUE may substantially improve required calculation time. If
+#' \code{no_cores > 1}, the parallel functionality will be passed to the
+#' bootstrapping process, so internal \code{ELEFAN_GA} calls will run with
+#' \code{parallel = FALSE}.
 #' @param pmutation the probability of mutation in a parent chromosome.
 #' Usually mutation occurs with a small probability, and by default is set to 0.1.
 #' @param pcrossover the probability of crossover between pairs of chromosomes.
@@ -161,6 +169,7 @@ ELEFAN_GA_boot <- function(lfq,
                            seasonalised = FALSE,
                            low_par = NULL, up_par = NULL,
                            popSize = 50, maxiter = 100, run = maxiter,
+                           parallel = FALSE,
                            pmutation = 0.1, pcrossover = 0.8,
                            elitism = base::max(1, round(popSize * 0.05)),
                            MA = 5, addl.sqrt = FALSE, agemax = NULL,
@@ -183,7 +192,7 @@ ELEFAN_GA_boot <- function(lfq,
                     low_par = low_par, up_par = up_par,
                     popSize = popSize, maxiter = maxiter, run = run,
                     pmutation = pmutation, pcrossover = pcrossover,
-                    elitism = elitism,
+                    elitism = elitism, parallel = FALSE,
                     MA = MA, addl.sqrt = addl.sqrt, agemax = agemax, ...)
     }
 
@@ -200,7 +209,7 @@ ELEFAN_GA_boot <- function(lfq,
                                 low_par = low_par, up_par = up_par,
                                 popSize = popSize, maxiter = maxiter, run = run,
                                 pmutation = pmutation, pcrossover = pcrossover,
-                                elitism = elitism,
+                                elitism = elitism, parallel = parallel,
                                 MA = MA, addl.sqrt = addl.sqrt, agemax = agemax,
                                 ...)
     }
@@ -220,7 +229,7 @@ ELEFAN_GA_boot <- function(lfq,
 # Engine function
 lfq_ELEFAN_GA <- function(lfq, x, resample, seed, seasonalised, low_par, up_par,
                           popSize, maxiter, run, pmutation, pcrossover,
-                          elitism, MA, addl.sqrt, agemax, ...){
+                          elitism, MA, addl.sqrt, agemax, parallel, ...){
 
   set.seed(x + seed)
 
@@ -236,9 +245,9 @@ lfq_ELEFAN_GA <- function(lfq, x, resample, seed, seasonalised, low_par, up_par,
                        low_par = low_par, up_par = up_par,
                        popSize = popSize, maxiter = maxiter, run = run,
                        pmutation = pmutation, pcrossover = pcrossover,
-                       elitism = elitism,
+                       elitism = elitism, parallel = parallel,
                        MA = MA, addl.sqrt = addl.sqrt, agemax = agemax,
-                       flagging.out = FALSE, monitor = FALSE, parallel = FALSE,
+                       flagging.out = FALSE, monitor = FALSE,
                        plot = FALSE, plot.score = FALSE, ...)
 
   # return result
