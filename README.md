@@ -3,9 +3,13 @@
 
 A suite of new bootstrap-based models and software tools for the study of fish stocks and aquatic populations. 
 
-**To load** (using `remotes`):
+**To install** (using `remotes`):
 ```
-remotes::install_github("rschwamborn/fishboot")
+# master branch
+remotes::install_github(repo = "rschwamborn/fishboot")
+
+# dev branch (unstable)
+remotes::install_github(repo = "rschwamborn/fishboot", ref = "dev")
 ```
 
 **to cite**:

@@ -117,17 +117,17 @@
 #'
 #' @examples
 #' # Synthetical length at age data
-#' dat <- list(age = rep(x = 1:7,each = 5),
-#'             length = c(rnorm(n = 5, mean = 25.7, sd = 0.9),
-#'                        rnorm(n = 5, mean = 36.0, sd = 1.2),
-#'                        rnorm(n = 5, mean = 42.9, sd = 1.5),
-#'                        rnorm(n = 5, mean = 47.5, sd = 2.0),
-#'                        rnorm(n = 5, mean = 50.7, sd = 0.4),
-#'                        rnorm(n = 5, mean = 52.8, sd = 0.5),
-#'                        rnorm(n = 5, mean = 54.2, sd = 0.7)))
+#' dat <- list(age = rep(x = 1:7,each = 15),
+#'             length = c(rnorm(n = 15, mean = 4.6, sd = 4),
+#'                        rnorm(n = 15, mean = 22.8, sd = 7),
+#'                        rnorm(n = 15, mean = 35, sd = 7),
+#'                        rnorm(n = 15, mean = 43, sd = 7),
+#'                        rnorm(n = 15, mean = 49, sd = 5),
+#'                        rnorm(n = 15, mean = 53, sd = 5),
+#'                        rnorm(n = 15, mean = 57, sd = 3)))
 #'
 #' # Perform bootstrapped curve fitting with grolenage_boot
-#' res <- grolenage_boot(param = dat, nresamp = 100)
+#' res <- grolenage_boot(param = dat, nresamp = 70)
 #'
 #' # Plot scatter histograms of Linf and K
 #' LinfK_scatterhist(res = res)
