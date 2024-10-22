@@ -139,7 +139,7 @@ data("alba", package = "TropFishR")
 # Define settings (for demo only)
 MA       <- 7
 low_par  <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
-init_par <- list(Linf = 10, K = 0.5, t_anchor = 0.5, C = 0.5, ts = 0.5)
+init_par <- list(Linf = 12, K = 0.5, t_anchor = 0.5, C = 0.5, ts = 0.5)
 up_par   <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
 SA_time  <- 3
 SA_temp  <- 1e5
