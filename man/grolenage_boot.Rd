@@ -78,7 +78,7 @@ An object of class \code{lfqBoot} containing 2 levels:
 }
 }
 \description{
-This function performs growth parameters from length-at-age data.
+This function obtains growth parameter estimates from length-at-age data.
 Since it internally uses the function \link[TropFishR]{growth_length_age},
 this function allows to perform different methods: Gulland and Holt, Ford
 Walford, Chapman, Bertalanffy, or non linear least squares method (LSM).

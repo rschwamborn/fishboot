@@ -121,7 +121,6 @@
 #'
 #'
 #' @examples
-#' \dontrun{
 #' # load data
 #' data("alba", package = "TropFishR")
 #'
@@ -133,32 +132,30 @@
 #' maxiter   <- 50
 #' run       <- 10
 #' pmutation <- 0.2
-#' nresamp   <- 12
-#'
-#'
-#' # Parallel version
-#' res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
-#'                       up_par = up_par, low_par = low_par,
-#'                       popSize = popSize, maxiter = maxiter,
-#'                       run = run, pmutation = pmutation,
-#'                       nresamp = nresamp, seed = 1,
-#'                       parallel = TRUE, no_cores = parallel::detectCores() - 2)
-#'
-#' res
-#'
+#' nresamp   <- 7
 #'
 #' # Non-parallel version
 #' res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
 #'                       up_par = up_par, low_par = low_par,
 #'                       popSize = popSize, maxiter = maxiter,
 #'                       run = run, pmutation = pmutation,
-#'                       nresamp = nresamp, seed = 1,
-#'                       parallel = FALSE)
+#'                       nresamp = nresamp, seed = 1)
 #'
 #' res
 #'
 #' # Plot scatterhist of Linf and K
 #' LinfK_scatterhist(res = res)
+#'
+#' \dontrun{
+#' # Parallel version
+#' res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
+#'                       up_par = up_par, low_par = low_par,
+#'                       popSize = popSize, maxiter = maxiter,
+#'                       run = run, pmutation = pmutation,
+#'                       nresamp = nresamp, seed = 1,
+#'                       no_cores = parallel::detectCores() - 2)
+#'
+#' res
 #' }
 ELEFAN_GA_boot <- function(lfq,
                            seasonalised = FALSE,
@@ -234,15 +231,15 @@ lfq_ELEFAN_GA <- function(lfq, x, resample, seed, seasonalised, low_par, up_par,
     lfqb <- lfq
   }
 
-  fitboot <- ELEFAN_GA(lfq,
+  fitboot <- ELEFAN_GA(lfqb,
                        seasonalised = seasonalised,
                        low_par = low_par, up_par = up_par,
                        popSize = popSize, maxiter = maxiter, run = run,
                        pmutation = pmutation, pcrossover = pcrossover,
                        elitism = elitism,
                        MA = MA, addl.sqrt = addl.sqrt, agemax = agemax,
-                       flagging.out = FALSE, monitor = FALSE,
-                       plot = FALSE, plot.score = TRUE, ...)
+                       flagging.out = FALSE, monitor = FALSE, parallel = FALSE,
+                       plot = FALSE, plot.score = FALSE, ...)
 
   # return result
   c(unlist(fitboot$par), seed = seed + x)

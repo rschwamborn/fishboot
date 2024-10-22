@@ -20,7 +20,8 @@
 #' alba_p <- lfqResample(lfq = alba)
 #'
 #' # Side-by-side plot
-#' op <- par(mfcol = c(2,1), mar = c(4, 4, 2, 1))
+#' op <- par(no.readonly = TRUE)
+#' par(mfcol = c(2, 1), mar = c(4, 4, 2, 1))
 #'
 #' # Original
 #' plot(x = TropFishR::lfqRestructure(alba), Fname = "rcounts")

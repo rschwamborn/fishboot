@@ -1,4 +1,4 @@
-# fishboot :fish: :boot: <a><img src="man/figures/logo.png" align="right" height="138" /></a>
+# fishboot :fish: :boot: <a><img src="man/figures/logo.png" align="right" height="150" /></a>
 
 
 A suite of new bootstrap-based models and software tools for the study of fish stocks and aquatic populations. 

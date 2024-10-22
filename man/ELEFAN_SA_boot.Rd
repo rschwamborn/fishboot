@@ -133,7 +133,6 @@ algorithm, with repeated fitting to the original data (no resampling is
 performed).
 }
 \examples{
-\dontrun{
 # load data
 data("alba", package = "TropFishR")
 
@@ -141,32 +140,32 @@ data("alba", package = "TropFishR")
 MA        <- 7
 low_par   <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
 up_par    <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
-SA_time   <- 3
-SA_temp   <- 1e5
-nresamp   <- 12
-
-
-# Parallel version
-res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
-                      init_par = NULL, up_par = up_par, low_par = low_par,
-                      SA_time = SA_time, SA_temp = SA_temp,
-                      nresamp = nresamp, seed = NULL,
-                      parallel = TRUE, no_cores = parallel::detectCores() - 2)
-
-res
-
+popSize   <- 60
+maxiter   <- 50
+run       <- 10
+pmutation <- 0.2
+nresamp   <- 7
 
 # Non-parallel version
-res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
-                      init_par = NULL, up_par = up_par, low_par = low_par,
-                      SA_time = SA_time, SA_temp = SA_temp,
-                      nresamp = nresamp, seed = NULL,
-                      parallel = FALSE)
+res <- ELEFAN_GA_boot(lfq=alba, MA = MA, seasonalised = FALSE,
+                      up_par = up_par, low_par = low_par, popSize = popSize,
+                      maxiter = maxiter, run = run, pmutation = pmutation,
+                      nresamp = nresamp, seed = 1)
 
 res
 
 # Plot scatterhist of Linf and K
 LinfK_scatterhist(res = res)
+
+\dontrun{
+# parallel version
+res <- ELEFAN_GA_boot(lfq=alba, MA = MA, seasonalised = FALSE,
+                      up_par = up_par, low_par = low_par, popSize = popSize,
+                      maxiter = maxiter, run = run, pmutation = pmutation,
+                      nresamp = nresamp, seed = 1,
+                      no_cores = parallel::detectCores() - 2)
+
+res
 }
 }
 \references{
