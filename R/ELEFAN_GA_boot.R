@@ -177,7 +177,7 @@ ELEFAN_GA_boot <- function(lfq,
                            seed = NULL, nresamp = 10, resample = TRUE,
                            no_cores = 1, outfile = NA){
 
-  if(is.null(seed)) seed <- as.integer(x = runif(n = 1, min = 0, max = 1e6))
+  if(is.null(seed)) seed <- as.numeric(Sys.time())
 
   if(no_cores > 1){
 
