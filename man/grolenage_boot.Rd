@@ -13,7 +13,7 @@ grolenage_boot(
   t0_init = 0,
   seed = NULL,
   nresamp = 200,
-  nan_action = "nothing",
+  nan_action = c("nothing", "nanrm", "narm", "force"),
   time_lim = 5 * 60
 )
 }
@@ -34,13 +34,13 @@ bootstrapping growth).}
 \item{Linf_est}{BertalanffyPlot requires an estimate for \eqn{L_{inf}} to
 derive \eqn{K} and \eqn{t_0} (for more information see Details).}
 
-\item{Linf_init}{initital parameter of \eqn{L_{inf}} for non-linear sqaures
+\item{Linf_init}{initial parameter of \eqn{L_{inf}} for non-linear squares
 fitting (default 100).}
 
-\item{K_init}{initital parameter of \eqn{K} for non-linear sqaures fitting
+\item{K_init}{initial parameter of \eqn{K} for non-linear squares fitting
 (default 0.1).}
 
-\item{t0_init}{initital parameter of \eqn{L_0} for non-linear squares fitting
+\item{t0_init}{initial parameter of \eqn{L_0} for non-linear squares fitting
 (default 0).}
 
 \item{seed}{seed value for random number reproducibility (if it \code{NULL}

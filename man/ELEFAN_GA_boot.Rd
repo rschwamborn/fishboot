@@ -90,11 +90,12 @@ By default the top 5\% individuals will survive at each iteration.}
 should be performed (default: 5, for
    more information see \link[TropFishR]{lfqRestructure})}
 
-\item{addl.sqrt}{additional squareroot transformation of positive values
+\item{addl.sqrt}{additional square root transformation of positive values
 according to Brey et al. (1988) (default: FALSE, for
    more information see \link[TropFishR]{lfqRestructure})}
 
-\item{agemax}{maximum age of species; default NULL, then estimated from Linf}
+\item{agemax}{maximum age of species; default \code{NULL}, then estimated
+from \eqn{L_{inf}}.}
 
 \item{...}{additional parameters to pass to \code{\link[GA]{ga}}.}
 
@@ -149,7 +150,7 @@ MA        <- 7
 low_par   <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
 up_par    <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
 popSize   <- 60
-maxiter   <- 50
+maxiter   <- 30
 run       <- 10
 pmutation <- 0.2
 nresamp   <- 7

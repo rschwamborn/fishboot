@@ -132,7 +132,7 @@
 #' up_par   <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
 #' SA_time  <- 3
 #' SA_temp  <- 1e5
-#' nresamp  <- 10
+#' nresamp  <- 7
 #'
 #' # Non-parallel bootstrapped curve fiting
 #' res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
@@ -197,22 +197,26 @@ ELEFAN_SA_boot <- function(lfq,
     res <- vector(mode = "list", length = nresamp)
 
     for(x in seq(nresamp)){
-      res[[x]] <- lfq_ELEFAN_SA(lfq = lfq, x = x, resample = resample, seed = seed,
+      res[[x]] <- lfq_ELEFAN_SA(lfq = lfq, x = x,
+                                resample = resample, seed = seed,
                                 seasonalised = seasonalised,
                                 init_par = init_par,
                                 low_par = low_par, up_par = up_par,
                                 SA_time = SA_time, maxit = maxit,
                                 nb.stop.improvement = nb.stop.improvement,
-                                SA_temp = SA_temp, MA = MA, addl.sqrt = addl.sqrt,
-                                agemax = agemax)
+                                SA_temp = SA_temp, MA = MA,
+                                addl.sqrt = addl.sqrt, agemax = agemax)
     }
   }
 
+  # Combine results into a data.frame
   res <- do.call(what = rbind, args = res) |> as.data.frame()
 
+  # Build output structure
   res <- list(bootRaw = res[,-ncol(res)],
               seed = res$seed)
 
+  # Set class of output object
   class(res) <- "lfqBoot"
 
   res

@@ -1,8 +1,8 @@
 Package: fishboot
 Type: Package
 Title: Bootstrap-based methods for the study of fish stocks and aquatic populations
-Version: 1.0.0.9004
-Date: 2024-10-22
+Version: 1.0.0.9005
+Date: 2024-10-24
 Authors@R: c(
   person("Ralf", "Schwamborn", 
     role = c("aut", "cre"), 
@@ -18,15 +18,6 @@ Authors@R: c(
     role = c("aut"), 
     email = "mwilhelm@unam.na",
     comment = c(ORCID = "0000-0001-9271-2109")),
-  person("Matheus", "Barros", 
-    role = c("aut"), 
-    email = "matheus.barrosteu@gmail.com"),
-  person("Wesley", "Neves", 
-    role = c("aut"), 
-    email = "wesley.neves@ufpe.br"),
-  person("Matheus", "Assis de Oliveira", 
-    role = c("aut"), 
-    email = "matheus.assis@ufpe.br"),
   person("Wencheng", "Lau-Medrano", 
     role = c("ctb"), 
     email = "luis.laum@gmail.com",

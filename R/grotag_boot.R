@@ -16,7 +16,7 @@
 #' The output (a \code{list} of class \code{lfqBoot}) will store results (e.g.,
 #' VGBGF function parameters K and Linf) in a \code{data.frame} accessible
 #' through \code{$bootRaw}. The \code{$bootRaw} table also includes the growth
-#' performance index \strong{Phi'}, seaonal parameters \strong{u} and \strong{w}
+#' performance index \strong{Phi'}, seasonal parameters \strong{u} and \strong{w}
 #' (sensu Francis, 1988), which are equal to \strong{C} (sensu Pauly and Gaschütz,
 #' 1979) and and \strong{ts} (sensu Mildenberger et al., 2017). The
 #' \code{$bootRaw} table also includes seed values and system time.
@@ -62,17 +62,17 @@
 #' @param na_action \code{character} that defines the action that the function
 #' will execute if there is a row with NA:
 #' \itemize{
-#'  \item \code{nothing}: the function will return the results including the NAs
-#'  (default).
+#'  \item \code{nothing}: the function will return the results including the
+#'  \code{NA}s (default).
 #'  \item \code{narm}: after having the results, it will only returns the rows
-#'  without NAs. See Details.
+#'  without \code{NA}s. See Details.
 #'  \item \code{force}: The function will start an iterative process changing
 #'  the internal \code{seed} values until it fulfills the \code{nresamp}. It
 #'  works just together \code{time_lim} argument. See Details.
 #' }
 #' @param time_lim If \code{na_action = "force"}, it defines the maximum time
 #' (in seconds) that the function will last resampling until it achieves a
-#' result output with no-NaN rows.
+#' result output with no-\code{NaN} rows.
 #'
 #' @details
 #' There are 2 ways to specify the main input arguments (related to the size and
@@ -134,7 +134,7 @@
 #'                     L2 = bonito$L2,
 #'                     T1 = bonito$T1,
 #'                     T2 = bonito$T2,
-#'                     alpha = 35, beta = 55,
+#'                     alpha   = 35, beta = 55,
 #'                     design  = list(nu = 1, m = 1,p = 1, sea = 1),
 #'                     stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
 #'                     upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
@@ -146,7 +146,7 @@
 #'                    L2 = bonito$L2,
 #'                    T1 = bonito$T1,
 #'                    T2 = bonito$T2,
-#'                    alpha = 35, beta = 55,
+#'                    alpha   = 35, beta = 55,
 #'                    design  = list(nu = 1, m = 1,p = 1, sea = 1),
 #'                    stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
 #'                    upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
@@ -170,18 +170,37 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
                         st.gbup = NULL, control = list(maxit = 10000),
                         input.data = NULL,
                         seed = NULL, nresamp = 200,
-                        na_action = "nothing", time_lim = 5*60){
+                        na_action = c("nothing", "narm", "force"),
+                        time_lim = 5*60){
 
+  # Tolowerize na_action value and take just the 1st element
+  na_action <- tolower(na_action)[1] |>
+
+    # ...removing any posible punctuation character
+    gsub(pattern = "[[:punct:]]", replacement = "")
+
+  # Check na_action value and send an error message if correspond
+  if(!na_action %in% c("nothing", "narm", "force")){
+    stop("'na_action' value must be whether 'nothing', 'narm' or 'force'. See ?grotag_boot")
+  }
+
+  # If input.data is NULL
   if(is.null(input.data)){
+
+    # Combine the vectors L1, L2, T1 and T2 on a list
     input.data <- list(L1 = L1, L2 = L2, T1 = T1, T2 = T2) |>
 
+      # ...and then into a data.frame
       do.call(what = cbind.data.frame)
   }else{
+
+    # If some of the arguments are NULL, set it with a default name
     if(is.null(L1)) L1 <- "L1"
     if(is.null(L2)) L2 <- "L2"
     if(is.null(T1)) T1 <- "T1"
     if(is.null(T2)) T2 <- "T2"
 
+    # Then, extract that names from the input.data
     input.data <- input.data[,c(L1, L2, T1, T2)]
   }
 
@@ -190,12 +209,20 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
 
   # Empty results list
   res <- list()
-  na_action <- tolower(na_action)[1]
-  time_0 <- Sys.time()
+
+  # Initialize x = 0
   x <- 0
+
+  # Catch the time just before to start the loop
+  time_0 <- Sys.time()
+
+  # Start a while loop that will only run as long as the length of res is less
+  # than the value specified in nresamp
   while(length(res) < nresamp){
+    # Increasing x
     x <- x + 1
 
+    # Run engine function
     out <- tryCatch({
       grotag_internal(input.data = input.data, x = x, seed = seed,
                       alpha = alpha, beta = beta,
@@ -207,17 +234,23 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
                       st.gbup = st.gbup, control = control)
     }, error = \(e){NULL}) |> suppressWarnings()
 
-
+    # If result is not NULL or if the na_action is set as 'nothing'
     outnull <- is.null(out)
     if(!outnull || na_action == "nothing"){
-      # Adding output as is
+      # ...adding output as is
       res <- c(res, list(out))
     }else{
+      # ...otherwise, if na_action is 'force'
       if(na_action == "force"){
         # Check time diff
         t_diff <- difftime(time1 = Sys.time(), time2 = time_0, units = "secs")
+
+        # If the current time is higher than the limit, force to break out the
+        # loop
         if(t_diff >= time_lim) break
       }else{
+        # ...otherwise (if na_action if 'narm'), just break out if 'x' reaches
+        # the 'nresamp' value
         if(x == nresamp) break
       }
     }
@@ -236,7 +269,7 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
   # Define column names
   colnames(res) <- c( "Linf", "K", "PhiL", "u", "w", "seed", "time")
 
-  # Define class
+  # Set class of output object
   class(res) <- c("grotagBoot", class(res))
 
   res

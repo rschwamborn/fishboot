@@ -27,11 +27,11 @@
 #' bootstrapping growth).
 #' @param Linf_est BertalanffyPlot requires an estimate for \eqn{L_{inf}} to
 #' derive \eqn{K} and \eqn{t_0} (for more information see Details).
-#' @param Linf_init initital parameter of \eqn{L_{inf}} for non-linear sqaures
+#' @param Linf_init initial parameter of \eqn{L_{inf}} for non-linear squares
 #' fitting (default 100).
-#' @param K_init initital parameter of \eqn{K} for non-linear sqaures fitting
+#' @param K_init initial parameter of \eqn{K} for non-linear squares fitting
 #' (default 0.1).
-#' @param t0_init initital parameter of \eqn{L_0} for non-linear squares fitting
+#' @param t0_init initial parameter of \eqn{L_0} for non-linear squares fitting
 #' (default 0).
 #' @param seed seed value for random number reproducibility (if it \code{NULL}
 #' by default, it will set internally as \code{seed = as.numeric(Sys.time())}).
@@ -145,7 +145,19 @@ grolenage_boot <- function(param, method = "LSM",
                            Linf_est = NA, Linf_init = 100,
                            K_init = 0.1, t0_init = 0,
                            seed = NULL, nresamp = 200,
-                           nan_action = "nothing", time_lim = 5*60){
+                           nan_action = c("nothing", "nanrm", "narm", "force"),
+                           time_lim = 5*60){
+
+  # Tolowerize nan_action value and take just the 1st element
+  nan_action <- tolower(nan_action)[1] |>
+
+    # ...removing any posible punctuation character
+    gsub(pattern = "[[:punct:]]", replacement = "")
+
+  # Check nan_action value and send an error message if correspond
+  if(!nan_action %in% c("nothing", "narm", "nanrm", "force")){
+    stop("'nan_action' value must be whether 'nothing', 'nanrm', 'narm' or 'force'. See ?grolenage_boot")
+  }
 
   # Coerce param to a list
   param <- as.list(param)
@@ -159,13 +171,22 @@ grolenage_boot <- function(param, method = "LSM",
   # Set seed
   if(is.null(seed)) seed <- as.numeric(Sys.time())
 
+  # Empty results list
   res <- list()
-  nan_action <- tolower(nan_action)[1]
-  time_0 <- Sys.time()
+
+  # Initialize x = 0
   x <- 0
+
+  # Catch the time just before to start the loop
+  time_0 <- Sys.time()
+
+  # Start a while loop that will only run as long as the length of res is less
+  # than the value specified in nresamp
   while(length(res) < nresamp){
+    # Increasing x
     x <- x + 1
 
+    # Run engine function
     out <- grolenage_internal(param = param, method = method,
                               seed = seed, x = x,
                               Linf_est = Linf_est, Linf_init = Linf_init,
@@ -173,17 +194,23 @@ grolenage_boot <- function(param, method = "LSM",
 
       suppressWarnings()
 
-
+    # If result is not NULL or if the nan_action is set as 'nothing'
     outnan <- any(is.nan(out$out))
     if(!outnan || nan_action == "nothing"){
-      # Adding output as is
+      # ...adding output as is
       res <- c(res, list(out))
     }else{
+      # ...otherwise, if nan_action is 'force'
       if(nan_action == "force"){
         # Check time diff
         t_diff <- difftime(time1 = Sys.time(), time2 = time_0, units = "secs")
+
+        # If the current time is higher than the limit, force to break out the
+        # loop
         if(t_diff >= time_lim) break
       }else{
+        # ...otherwise (if nan_action if 'narm'), just break out if 'x' reaches
+        # the 'nresamp' value
         if(x == nresamp) break
       }
     }
@@ -196,9 +223,9 @@ grolenage_boot <- function(param, method = "LSM",
                 do.call(what = rbind) |> as.data.frame(),
               seed = lapply(X = res, FUN = \(x) x$seed) |> do.call(what = c))
 
-  message("t_anchor = t0")
+  # message("t_anchor = t0")
 
-  # Set the class
+  # Set class of output object
   class(res) <- "lfqBoot"
 
   res

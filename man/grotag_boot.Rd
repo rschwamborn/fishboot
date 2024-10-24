@@ -26,7 +26,7 @@ grotag_boot(
   input.data = NULL,
   seed = NULL,
   nresamp = 200,
-  na_action = "nothing",
+  na_action = c("nothing", "narm", "force"),
   time_lim = 5 * 60
 )
 }
@@ -86,10 +86,10 @@ by default, it will set internally as \code{seed = as.numeric(Sys.time())}).}
 \item{na_action}{\code{character} that defines the action that the function
 will execute if there is a row with NA:
 \itemize{
- \item \code{nothing}: the function will return the results including the NAs
- (default).
+ \item \code{nothing}: the function will return the results including the
+ \code{NA}s (default).
  \item \code{narm}: after having the results, it will only returns the rows
- without NAs. See Details.
+ without \code{NA}s. See Details.
  \item \code{force}: The function will start an iterative process changing
  the internal \code{seed} values until it fulfills the \code{nresamp}. It
  works just together \code{time_lim} argument. See Details.
@@ -97,7 +97,7 @@ will execute if there is a row with NA:
 
 \item{time_lim}{If \code{na_action = "force"}, it defines the maximum time
 (in seconds) that the function will last resampling until it achieves a
-result output with no-NaN rows.}
+result output with no-\code{NaN} rows.}
 }
 \value{
 A \code{data.frame} of fitted VBGF parameters (columns) by resampling
@@ -120,7 +120,7 @@ by recapture date) several times (\code{nresamp} times, default:
 The output (a \code{list} of class \code{lfqBoot}) will store results (e.g.,
 VGBGF function parameters K and Linf) in a \code{data.frame} accessible
 through \code{$bootRaw}. The \code{$bootRaw} table also includes the growth
-performance index \strong{Phi'}, seaonal parameters \strong{u} and \strong{w}
+performance index \strong{Phi'}, seasonal parameters \strong{u} and \strong{w}
 (sensu Francis, 1988), which are equal to \strong{C} (sensu Pauly and Gaschütz,
 1979) and and \strong{ts} (sensu Mildenberger et al., 2017). The
 \code{$bootRaw} table also includes seed values and system time.
@@ -156,7 +156,7 @@ fishmethods::grotag(L1 = bonito$L1,
                     L2 = bonito$L2,
                     T1 = bonito$T1,
                     T2 = bonito$T2,
-                    alpha = 35, beta = 55,
+                    alpha   = 35, beta = 55,
                     design  = list(nu = 1, m = 1,p = 1, sea = 1),
                     stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
                     upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
@@ -168,7 +168,7 @@ res <- grotag_boot(L1 = bonito$L1,
                    L2 = bonito$L2,
                    T1 = bonito$T1,
                    T2 = bonito$T2,
-                   alpha = 35, beta = 55,
+                   alpha   = 35, beta = 55,
                    design  = list(nu = 1, m = 1,p = 1, sea = 1),
                    stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
                    upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
