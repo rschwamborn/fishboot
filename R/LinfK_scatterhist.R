@@ -45,6 +45,8 @@
 #'
 #' If NULL, it will be defined as \code{colorRampPalette(c("white", blues9))(1e3)}.
 #'
+#' @return This function returns just the described plot.
+#'
 #' @export
 #'
 #' @examples
@@ -70,8 +72,9 @@ LinfK_scatterhist <- function(res,
   # Extract values of Linf and K from res
   res <- get_LinfK(x = res)
 
-  # Catch original par
+  # Catch original par settings and restore them at the end
   op <- par(no.readonly = TRUE)
+  on.exit(par(op))
 
   # Define and set order of subplots
   matrix(data = c(2, 0, 1, 3), ncol = 2, byrow = TRUE) |>
@@ -156,9 +159,6 @@ LinfK_scatterhist <- function(res,
   rect(xleft = 0, ybottom = yhist$breaks[-length(yhist$breaks)],
        xright = yhist$counts, ytop = yhist$breaks[-1],
        col = 8, border = 1)
-
-  # Reverting changes on graphic parameters
-  par(op)
 
   invisible()
 }

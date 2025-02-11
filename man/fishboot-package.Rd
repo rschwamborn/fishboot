@@ -18,7 +18,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Ralf Schwamborn \email{ralf.schwamborn@ufpe.br} (\href{https://orcid.org/0000-0003-3701-3772}{ORCID})
+\strong{Maintainer}: Ralf Schwamborn \email{ralf.schwamborn@ufpe.br} (\href{https://orcid.org/0000-0001-9150-8720}{ORCID})
 
 Authors:
 \itemize{

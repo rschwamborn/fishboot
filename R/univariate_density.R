@@ -26,6 +26,7 @@
 #' functions such as \link{ELEFAN_SA_boot}, \link{ELEFAN_GA_boot},
 #' \link{grotag_boot}, or \link{grolenage_boot}).
 #'
+#' @return This function returns just the described plot.
 #'
 #' @export
 #'
@@ -40,8 +41,9 @@ univariate_density <- function(res, CI = 95, use_hist = FALSE, nbreaks = 10,
   # Extract bootstrap results
   res <- res$bootRaw
 
-  # Catch original par
+  # Catch original par settings and restore them at the end
   op <- par(no.readonly = TRUE)
+  on.exit(par(op))
 
   par(mfcol = c(1, ncol(res)), mar = mar, oma = oma, mgp = mgp,
       tcl = tcl, cex = cex, ...)
@@ -123,9 +125,6 @@ univariate_density <- function(res, CI = 95, use_hist = FALSE, nbreaks = 10,
   }
 
   mtext("Density", side = 1, line = 0, outer = TRUE)
-
-  # Reverting changes on graphic parameters
-  par(op)
 
   invisible()
 }

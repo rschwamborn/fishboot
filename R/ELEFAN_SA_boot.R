@@ -145,13 +145,13 @@
 #' # Plot scatterhist of Linf and K
 #' LinfK_scatterhist(res = res)
 #'
-#' \dontrun{
+#' \donttest{
 #' # parallel version
 #' res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
 #'                       init_par = init_par, up_par = up_par, low_par = low_par,
 #'                       SA_time = SA_time, SA_temp = SA_temp,
 #'                       nresamp = nresamp,
-#'                       no_cores = parallel::detectCores() - 2)
+#'                       no_cores = 2)
 #'
 #' res
 #' }

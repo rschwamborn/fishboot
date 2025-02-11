@@ -74,6 +74,9 @@ size and background color of resampling points.}
 
 \item{...}{Extra arguments passed to main plot function.}
 }
+\value{
+This function returns just the described plot.
+}
 \description{
 This function plots a scatterplot of von Bertalanffy growth function
 parameters \eqn{K} vs \eqn{L_{inf}} (“Kimura plot”)  with histograms.

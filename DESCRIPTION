@@ -1,8 +1,8 @@
 Package: fishboot
 Type: Package
 Title: Bootstrap-based methods for the study of fish stocks and aquatic populations
-Version: 1.0.0.9005
-Date: 2024-10-24
+Version: 1.0.0.9006
+Date: 2025-02-11
 Authors@R: c(
   person("Ralf", "Schwamborn", 
     role = c("aut", "cre"), 
@@ -23,8 +23,8 @@ Authors@R: c(
     email = "luis.laum@gmail.com",
     comment = c(ORCID = "0000-0002-7979-9710"))
   )
-Description: The fishboot package contains a suite of new bootstrap-based models 
-  and software tools for the study of fish stocks and aquatic populations. 
+Description: It contains a suite of new bootstrap-based models and software 
+  tools for the study of fish stocks and aquatic populations. 
 Depends: R (>= 4.1.0)
 Imports:
     doParallel,

@@ -32,6 +32,9 @@ histogram.}
 \item{mar, oma, mgp, tcl, cex, ...}{Additional arguments passed to
 \link[graphics]{par}.}
 }
+\value{
+This function returns just the described plot.
+}
 \description{
 This function plots a set of vertical plots with kernel density
 distributions for univariate posterior distributions of the VBGF growth
