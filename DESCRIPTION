@@ -25,6 +25,7 @@ Authors@R: c(
   )
 Description: It contains a suite of new bootstrap-based models and software 
   tools for the study of fish stocks and aquatic populations. 
+  Schwamborn, R., Mildenberger, T. K., & Taylor, M. H. (2019). <doi:10.1016/j.ecolmodel.2018.12.001>
 Depends: R (>= 4.1.0)
 Imports:
     doParallel,
