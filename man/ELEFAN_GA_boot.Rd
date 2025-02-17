@@ -23,7 +23,6 @@ ELEFAN_GA_boot(
   seed = NULL,
   nresamp = 10,
   resample = TRUE,
-  no_cores = 1,
   outfile = NA
 )
 }
@@ -69,13 +68,9 @@ GA search is halted. default:100}
 in the best fitness value before the GA is stopped. Default: equals
 \code{maxiter}.}
 
-\item{parallel}{A \code{logical} argument specifying if parallel computing
-should be used (TRUE) or not for evaluating the fitness function. See
-\code{\link[GA]{ga}} for details. By default, \code{FALSE}, but setting to
-TRUE may substantially improve required calculation time. If
-\code{no_cores > 1}, the parallel functionality will be passed to the
-bootstrapping process, so internal \code{ELEFAN_GA} calls will run with
-\code{parallel = FALSE}.}
+\item{parallel}{Whether a \code{logical} or \code{integer} argument
+specifying the configuration of parallel computing. See \code{\link[GA]{ga}}
+for details.}
 
 \item{pmutation}{the probability of mutation in a parent chromosome.
 Usually mutation occurs with a small probability, and by default is set to 0.1.}
@@ -106,9 +101,6 @@ from \eqn{L_{inf}}.}
 
 \item{resample}{\code{logical}. Do you want that \code{lfq} object be
 resampled (\code{TRUE} by default).}
-
-\item{no_cores}{positive integer. If \code{no_cores} > 1, a 'parallel' package
-cluster with that many cores is created.}
 
 \item{outfile}{\code{character}; path of the file which will register the
 progress of the permutation completions. If it is set as \code{false},
@@ -173,8 +165,7 @@ res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
                       up_par = up_par, low_par = low_par,
                       popSize = popSize, maxiter = maxiter,
                       run = run, pmutation = pmutation,
-                      nresamp = nresamp,
-                      no_cores = 2)
+                      nresamp = nresamp)
 
 res
 }

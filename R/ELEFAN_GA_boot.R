@@ -44,13 +44,9 @@
 #' @param run the number of consecutive generations without any improvement
 #' in the best fitness value before the GA is stopped. Default: equals
 #' \code{maxiter}.
-#' @param parallel A \code{logical} argument specifying if parallel computing
-#' should be used (TRUE) or not for evaluating the fitness function. See
-#' \code{\link[GA]{ga}} for details. By default, \code{FALSE}, but setting to
-#' TRUE may substantially improve required calculation time. If
-#' \code{no_cores > 1}, the parallel functionality will be passed to the
-#' bootstrapping process, so internal \code{ELEFAN_GA} calls will run with
-#' \code{parallel = FALSE}.
+#' @param parallel Whether a \code{logical} or \code{integer} argument
+#' specifying the configuration of parallel computing. See \code{\link[GA]{ga}}
+#' for details.
 #' @param pmutation the probability of mutation in a parent chromosome.
 #' Usually mutation occurs with a small probability, and by default is set to 0.1.
 #' @param pcrossover the probability of crossover between pairs of chromosomes.
@@ -71,8 +67,6 @@
 #' \code{nresamp = 10}).
 #' @param resample \code{logical}. Do you want that \code{lfq} object be
 #' resampled (\code{TRUE} by default).
-#' @param no_cores positive integer. If \code{no_cores} > 1, a 'parallel' package
-#' cluster with that many cores is created.
 #' @param outfile \code{character}; path of the file which will register the
 #' progress of the permutation completions. If it is set as \code{false},
 #' \code{NA} or \code{NULL}, no file will be created.
@@ -157,8 +151,7 @@
 #'                       up_par = up_par, low_par = low_par,
 #'                       popSize = popSize, maxiter = maxiter,
 #'                       run = run, pmutation = pmutation,
-#'                       nresamp = nresamp,
-#'                       no_cores = 2)
+#'                       nresamp = nresamp)
 #'
 #' res
 #' }
@@ -172,44 +165,22 @@ ELEFAN_GA_boot <- function(lfq,
                            MA = 5, addl.sqrt = FALSE, agemax = NULL,
                            ...,
                            seed = NULL, nresamp = 10, resample = TRUE,
-                           no_cores = 1, outfile = NA){
+                           outfile = NA){
 
   if(is.null(seed)) seed <- as.numeric(Sys.time())
 
-  if(no_cores > 1){
+  # Empty results list
+  res <- vector(mode = "list", length = nresamp)
 
-    # Registering cluster
-    cl <- makeCluster(spec = no_cores)
-    registerDoParallel(cl = cl)
-
-    # Run multithread process
-    res <- foreach(x = seq(nresamp), .inorder = FALSE, .packages = "TropFishR") %dopar% {
-      lfq_ELEFAN_GA(lfq = lfq, x = x, resample = resample, seed = seed,
-                    seasonalised = seasonalised,
-                    low_par = low_par, up_par = up_par,
-                    popSize = popSize, maxiter = maxiter, run = run,
-                    pmutation = pmutation, pcrossover = pcrossover,
-                    elitism = elitism, parallel = FALSE,
-                    MA = MA, addl.sqrt = addl.sqrt, agemax = agemax, ...)
-    }
-
-    # Finish cluster
-    stopCluster(cl)
-  }else{
-
-    # Empty results list
-    res <- vector(mode = "list", length = nresamp)
-
-    for(x in seq(nresamp)){
-      res[[x]] <- lfq_ELEFAN_GA(lfq = lfq, x = x, resample = resample, seed = seed,
-                                seasonalised = seasonalised,
-                                low_par = low_par, up_par = up_par,
-                                popSize = popSize, maxiter = maxiter, run = run,
-                                pmutation = pmutation, pcrossover = pcrossover,
-                                elitism = elitism, parallel = parallel,
-                                MA = MA, addl.sqrt = addl.sqrt, agemax = agemax,
-                                ...)
-    }
+  for(x in seq(nresamp)){
+    res[[x]] <- lfq_ELEFAN_GA(lfq = lfq, x = x, resample = resample, seed = seed,
+                              seasonalised = seasonalised,
+                              low_par = low_par, up_par = up_par,
+                              popSize = popSize, maxiter = maxiter, run = run,
+                              pmutation = pmutation, pcrossover = pcrossover,
+                              elitism = elitism, parallel = parallel,
+                              MA = MA, addl.sqrt = addl.sqrt, agemax = agemax,
+                              ...)
   }
 
   # Combine results into a data.frame
