@@ -152,9 +152,9 @@
 #'                    upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
 #'                    lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
 #'                    control = list(maxit = 1e4),
-#'                    nresamp = 10, na_action = "narm")
+#'                    nresamp = 3, na_action = "narm")
 #'
-#' LinfK_scatterhist(res = res)
+#' res
 grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
                         alpha = NULL, beta = NULL,
                         design = list(nu = 0, m = 0, p = 0, sea = 0),

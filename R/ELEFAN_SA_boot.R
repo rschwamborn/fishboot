@@ -68,8 +68,9 @@
 #' \code{nresamp = 10}).
 #' @param resample \code{logical}. Do you want that \code{lfq} object be
 #' resampled (\code{TRUE} by default).
-#' @param no_cores positive integer. If \code{no_cores} > 1, a 'parallel' package
-#' cluster with that many cores is created.
+#' @param parallel Whether a \code{logical} or \code{integer} argument
+#' specifying the configuration of parallel computing. If \code{parallel = TRUE},
+#' the number of threads will be defined as \code{parallel::detectCores() - 2}.
 #' @param outfile \code{character}; path of the file which will register the
 #' progress of the permutation completions. If it is set as \code{false},
 #' \code{NA} or \code{NULL}, no file will be created.
@@ -125,14 +126,14 @@
 #' # load data
 #' data("alba", package = "TropFishR")
 #'
-#' # Define settings (for demo only)
+#' # Define settings (for demo only, fast settings)
 #' MA       <- 7
-#' low_par  <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
-#' init_par <- list(Linf = 12, K = 0.5, t_anchor = 0.5, C = 0.5, ts = 0.5)
-#' up_par   <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
-#' SA_time  <- 3
+#' low_par   <- list(Linf = 9, K = 0.4, t_anchor = 0.5, C = 0, ts = 0)
+#' up_par    <- list(Linf = 11, K = 0.6, t_anchor = 0.8, C = 1, ts = 1)
+#' init_par <- list(Linf = 10, K = 0.5, t_anchor = 0.6, C = 0.5, ts = 0.5)
+#' SA_time  <- 1.5
 #' SA_temp  <- 1e5
-#' nresamp  <- 7
+#' nresamp  <- 2
 #'
 #' # Non-parallel bootstrapped curve fiting
 #' res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
@@ -142,16 +143,22 @@
 #'
 #' res
 #'
-#' # Plot scatterhist of Linf and K
-#' LinfK_scatterhist(res = res)
-#'
 #' \donttest{
+#' # Define settings (for demo only)
+#' MA       <- 7
+#' low_par  <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
+#' init_par <- list(Linf = 12, K = 0.5, t_anchor = 0.5, C = 0.5, ts = 0.5)
+#' up_par   <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
+#' SA_time  <- 10
+#' SA_temp  <- 1e5
+#' nresamp  <- 15
+#'
 #' # parallel version
 #' res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
 #'                       init_par = init_par, up_par = up_par, low_par = low_par,
 #'                       SA_time = SA_time, SA_temp = SA_temp,
 #'                       nresamp = nresamp,
-#'                       no_cores = 2)
+#'                       no_cores = parallel::detectCores() - 2)
 #'
 #' res
 #' }
@@ -167,9 +174,13 @@ ELEFAN_SA_boot <- function(lfq,
                            SA_temp = 1e+05, MA = 5, addl.sqrt = FALSE,
                            agemax = NULL,
                            seed = NULL, nresamp = 10, resample = TRUE,
-                           no_cores = 1, outfile = NA){
+                           parallel = FALSE, outfile = NA){
 
   if(is.null(seed)) seed <- as.numeric(Sys.time())
+
+  if(!is.logical(parallel) && !is.integer(parallel)) stop("'parallel' must be logical or integer.")
+
+  no_cores <- if(isTRUE(parallel)) parallel::detectCores() - 2 else pmax(as.integer(parallel), 1)
 
   if(no_cores > 1){
 

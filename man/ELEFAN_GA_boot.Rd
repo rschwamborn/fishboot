@@ -137,32 +137,42 @@ performed).
 # load data
 data("alba", package = "TropFishR")
 
-# Define settings (for demo only)
+# Define settings (for demo only, fast settings)
 MA        <- 7
-low_par   <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
-up_par    <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
-popSize   <- 60
-maxiter   <- 30
-run       <- 10
-pmutation <- 0.2
-nresamp   <- 7
+low_par   <- list(Linf = 9, K = 0.4, t_anchor = 0.5, C = 0, ts = 0)
+up_par    <- list(Linf = 11, K = 0.6, t_anchor = 0.8, C = 1, ts = 1)
+popSize   <- 12
+maxiter   <- 5
+run       <- 4
+pmutation <- 0.1
+nresamp   <-  2
 
 # Non-parallel version
 res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
                       up_par = up_par, low_par = low_par,
+                      parallel = FALSE,
                       popSize = popSize, maxiter = maxiter,
                       run = run, pmutation = pmutation,
                       nresamp = nresamp)
 
 res
 
-# Plot scatterhist of Linf and K
-LinfK_scatterhist(res = res)
 
 \donttest{
+# Define settings (for demo only)
+MA        <- 7
+low_par   <- list(Linf = 8, K = 0.2, t_anchor = 0, C = 0, ts = 0)
+up_par    <- list(Linf = 12, K = 0.9, t_anchor = 1, C = 1, ts = 1)
+popSize   <- 40
+maxiter   <- 30
+run       <- 10
+pmutation <- 0.2
+nresamp   <-  15
+
 # Parallel version
 res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
                       up_par = up_par, low_par = low_par,
+                      parallel = TRUE,
                       popSize = popSize, maxiter = maxiter,
                       run = run, pmutation = pmutation,
                       nresamp = nresamp)
