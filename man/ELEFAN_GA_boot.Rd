@@ -167,7 +167,7 @@ popSize   <- 40
 maxiter   <- 30
 run       <- 10
 pmutation <- 0.2
-nresamp   <-  15
+nresamp   <-  3
 
 # Parallel version
 res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
