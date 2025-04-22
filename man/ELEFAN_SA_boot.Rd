@@ -162,7 +162,7 @@ init_par <- list(Linf = 12, K = 0.5, t_anchor = 0.5, C = 0.5, ts = 0.5)
 up_par   <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
 SA_time  <- 10
 SA_temp  <- 1e5
-nresamp  <- 15
+nresamp  <- 12
 
 # parallel version
 res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
