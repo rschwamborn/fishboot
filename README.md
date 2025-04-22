@@ -1,12 +1,15 @@
-fishboot :fish: :boot:
-=====
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/fishboot)](https://cran.r-project.org/package=fishboot) [![CRAN_time_from_release](https://www.r-pkg.org/badges/ago/fishboot)](https://cran.r-project.org/package=fishboot) [![metacran downloads](https://cranlogs.r-pkg.org/badges/fishboot)](https://cran.r-project.org/package=fishboot)
+# fishboot :fish: :boot: <a><img src="man/figures/logo.png" align="right" height="150" /></a>
 
 A suite of new bootstrap-based models and software tools for the study of fish stocks and aquatic populations. 
 
-**To load** (using `devtools`):
+**To install** (using `remotes`):
 ```
-library(devtools)
-install_github("rschwamborn/fishboot")
+# master branch
+remotes::install_github(repo = "rschwamborn/fishboot")
+
+# dev branch (unstable)
+remotes::install_github(repo = "rschwamborn/fishboot", ref = "dev")
 ```
 
 **to cite**:

@@ -1,8 +1,17 @@
-#' Bootstraped ELEFAN_SA
+#' @title Bootstraped ELEFAN_SA
 #'
-#' @param lfq a length frequency object of the class `lfq`
+#' @description This function performs a bootstrapped fitting of a von
+#' Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_SA}}
+#' function. Most of the arguments are simply passed to the function within many
+#' permutations (resampling) of the original \code{lfq} data. Partial
+#' (repeated fitting on original data) and full bootstrap (with resampling)
+#' routines are possible, depending on \code{resample}.
+#'
+#'
+#' @param lfq a length frequency object of the class \code{lfq} (see
+#' \link[TropFishR]{lfqCreate}).
 #' @param seasonalised logical; indicating if the seasonalised von Bertalanffy
-#'    growth function should be applied (default: FALSE).
+#' growth function should be applied (default: FALSE).
 #' @param init_par a list providing the Initial values for the components to be
 #' optimized. When set to NULL the following default values are used:
 #'  \itemize{
@@ -10,230 +19,248 @@
 #'   length class in the data),
 #'   \item \strong{K} curving coefficient (default: 0.5),
 #'   \item \strong{t_anchor} time point anchoring growth curves in year-length
-#'   coordinate system, corrsponds to peak spawning month (range: 0 to 1, default: 0.5),
+#'   coordinate system, corresponds to peak spawning month (range: 0 to 1,
+#'   default: 0.5),
 #'   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
 #'   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
 #' }
-#' @param low_par a list providing the minimum of the search space in case
-#' of real-valued or permutation encoded optimizations. When set to NULL the
-#' following default values are used:
+#' @param low_par a list providing the lower bounds for components. When set to
+#' NULL the following default values are used:
 #'  \itemize{
 #'   \item \strong{Linf} length infinity in cm (default is calculated from maximum
 #'   length class in the data),
 #'   \item \strong{K} curving coefficient (default: 0.01),
 #'   \item \strong{t_anchor} time point anchoring growth curves in year-length
-#'   coordinate system, corrsponds to peak spawning month (range: 0 to 1, default: 0),
+#'   coordinate system, corresponds to peak spawning month (range: 0 to 1,
+#'   default: 0),
 #'   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
 #'   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
 #' }
-#' @param up_par a list providing the maximum of the search space in case of
-#' real-valued or permutation encoded optimizations. When set to NULL the
-#' following default values are used:
+#' @param up_par a list providing the upper bounds for components. When set to
+#' NULL the following default values are used:
 #'  \itemize{
 #'   \item \strong{Linf} length infinity in cm (default is calculated from maximum
 #'   length class in the data),
-#'   \item \strong{K} curving coefficient (default: 1),
+#'   \item \strong{K} curving coefficient (default: 0.01),
 #'   \item \strong{t_anchor} time point anchoring growth curves in year-length
-#'   coordinate system, corrsponds to peak spawning month (range: 0 to 1, default: 1),
-#'   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 1),
-#'   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 1);
+#'   coordinate system, corresponds to peak spawning month (range: 0 to 1,
+#'   default: 0),
+#'   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
+#'   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
 #' }
-#' @param parallel logical; should parallelized computing be used. Depending on platform
-#'    operating system, the argument `clusterType` can be adjusted (see argument description for
-#'    details). (Default: `parallel = TRUE`)
-#' @param nresamp numeric; the number of permutations to run (Default: `nresamp = 200`)
-#' @param no_cores numeric (Default: `no_cores = detectCores() - 1`)
-#' @param clusterType (Default: `clusterType = "PSOCK"`)
-#' @param outfile character; text file name (Default: `outfile = "output.txt"`) which will
-#'    records the progress of the permutation completions.
 #' @param SA_time numeric; Maximum running time in seconds (default : 60 * 1).
+#' @param maxit Integer. Maximum number of iterations of the algorithm. Default
+#' is NULL.
+#' @param nb.stop.improvement Integer. The program will stop when there is no
+#' any improvement in 'nb.stop.improvement' steps. Default is NULL
 #' @param SA_temp numeric; Initial value for temperature (default : 1e5).
-#' @param maxit numeric; default: maxit = NULL.
 #' @param MA number indicating over how many length classes the moving average
-#' should be performed (default: 5, for more information see \code{\link[TropFishR]{lfqRestructure}}.
-#' @param addl.sqrt logical. Should counts be square root transformed prior to restructuring.
-#' @param agemax numeric. maximum age
-#' @param flagging.out logical Should flagging out be done
-#' @param resample logical. Should `lfq` object be resampled (Default: `resample = TRUE`).
-#'   When `resample = FALSE`, a `partial bootstrap` is performed, reflecting solution
-#'   variation due only to the search algorithm.
-#' @param seed seed value for random number reproducibility (Default: NULL)
+#' should be performed (defalut: 5, for more information see
+#' \link[TropFishR]{lfqRestructure}).
+#' @param addl.sqrt Passed to \link[TropFishR]{lfqRestructure}. Applied an
+#' additional square-root transformation of positive values according to Brey
+#' et al. (1988). (default: FALSE, for more information see
+#' \link[TropFishR]{lfqRestructure}).
+#' @param agemax maximum age of species; default NULL, then estimated from
+#' \eqn{L_{inf}}.
+#' @param seed seed value for random number reproducibility.
+#' @param nresamp \code{numeric}, the number of permutations to run (by default
+#' \code{nresamp = 10}).
+#' @param resample \code{logical}. Do you want that \code{lfq} object be
+#' resampled (\code{TRUE} by default).
+#' @param parallel Whether a \code{logical} or \code{integer} argument
+#' specifying the configuration of parallel computing. If \code{parallel = TRUE},
+#' the number of threads will be defined as \code{parallel::detectCores() - 2}.
+#' @param outfile \code{character}; path of the file which will register the
+#' progress of the permutation completions. If it is set as \code{false},
+#' \code{NA} or \code{NULL}, no file will be created.
 #'
-#' @description `ELEFAN_SA_boot` performs a bootstrapped fitting of
-#'   von Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_SA}} function.
-#'   Most of the arguments are simply passed to the function within many
-#'   permutations (resampling) of the original lfq data.
+#' @details
+#' If \code{resample = TRUE}, a \strong{full non-parametric bootstrap} is
+#' performed with resampling from the original length-frequencies by using the
+#' function \link{lfqResample}. Otherwise, if \code{resample = FALSE}, a partial
+#' bootstrap is performed, reflecting solution variation due only to the search
+#' algorithm, with repeated fitting to the original data (no resampling is
+#' performed).
 #'
-#' @return a list of class `lfqBoot` containing 2 levels: `$bootRaw` - a data.frame of fitted VBGF parameters
-#' (columns) by resampling (rows), `$seed` - a vector of seed values set prior to each resampling
-#' call to `lfqResample`.
-#'
-#'
-#' @examples
-#' \donttest{
-#' # load data
-#' library(TropFishR)
-#' data(alba)
-#'
-#' # settings (these settings may not be optimal - for demo only)
-#' MA <- 7
-#' init_par <- NULL
-#' low_par <- list(Linf = 8, K = 0.1, t_anchor = 0)
-#' up_par <- list(Linf = 15, K = 5, t_anchor = 1)
-#' SA_time <- 3
-#' SA_temp <- 1e5
-#' nresamp <- 12
-#'
-#'
-#' # parallel version
-#' library(parallel)
-#' t1 <- Sys.time()
-#' res <- ELEFAN_SA_boot(lfq=alba, MA = MA, seasonalised = FALSE,
-#'   init_par = init_par, up_par = up_par, low_par = low_par,
-#'   SA_time = SA_time, SA_temp = SA_temp,
-#'   nresamp = nresamp, parallel = TRUE, no_cores = detectCores()-1,
-#'   seed = 1
-#' )
-#' t2 <- Sys.time()
-#' t2 - t1
-#' res
-#'
-#'
-#' # non-parallel version
-#' t1 <- Sys.time()
-#' set.seed(1)
-#' res <- ELEFAN_SA_boot(lfq=alba, seasonalised = FALSE,
-#'   init_par = init_par, up_par = up_par, low_par = low_par,
-#'   SA_time = SA_time, SA_temp = SA_temp,
-#'   nresamp = nresamp, MA=MA, parallel = FALSE,
-#'   seed = 1
-#' )
-#' t2 <- Sys.time()
-#' t2 - t1
-#' res
-#'
-#' # plot resulting distributions
-#' univariate_density(res, use_hist = TRUE)
-#'
-#' # plot scatterhist of Linf and K
-#' LinfK_scatterhist(res)
-#'
+#' @references \itemize{
+#'  \item Brey, T., Soriano, M., and Pauly, D. 1988. Electronic length frequency
+#' analysis: a revised and expanded user's guide to ELEFAN 0, 1 and 2.
+#'  \item Efron, B., & Tibshirani, R. (1986). Bootstrap methods for standard
+#' errors, confidence intervals, and other measures of statistical accuracy.
+#' Statistical Science, 54-75.
+#'  \item Mildenberger, T., Taylor, M. H., & Wolff, A. M., 2017. TropFishR: an R
+#' package for fisheries analysis with length-frequency data. Methods in Ecology
+#' and Evolution, 8(11), 1520-1527.
+#'  \item Pauly, D. 1981. The relationship between gill surface area and growth
+#' performance in fish: a generalization of von Bertalanffy's theory of growth.
+#' Meeresforsch. 28:205-211.
+#'  \item Pauly, D. and N. David, 1981. ELEFAN I, a BASIC program for the
+#' objective extraction of growth parameters from length-frequency data.
+#' Meeresforschung, 28(4):205-211.
+#'  \item Schwamborn, R., Mildenberger, T. K., & Taylor, M. H., 2019. Assessing
+#' sources of uncertainty in length-based estimates of body growth in
+#' populations of fishes and macroinvertebrates with bootstrapped ELEFAN.
+#' Ecological Modelling, 393, 37-51.
+#'  \item Schwamborn, R., Freitas, M. O., Moura, R. L., & Aschenbrenner, A. 2023.
+#' Comparing the accuracy and precision of novel bootstrapped length-frequency
+#' and length-at-age (otolith) analyses, with a case study of lane snapper
+#' (\emph{Lutjanus synagris}) in the SW Atlantic. Fisheries Research, 264, 106735.
+#'  \item Scrucca, L., 2013. GA: a package for genetic algorithms in R. Journal
+#' of Statistical Software, 53(4), 1-37.
+#'  \item von Bertalanffy, L., 1938. A quantitative theory of organic growth.
+#' Human Biology 10, 181-213.
 #' }
 #'
-#' @importFrom stats quantile runif
-#' @importFrom parallel detectCores parLapply stopCluster detectCores
+#' @return An object of class \code{lfqBoot} containing 2 levels:
+#' \describe{
+#'   \item{\code{$bootRaw}}{A \code{data.frame} of fitted VBGF parameters
+#'   (columns) by resampling (rows).}
+#'   \item{\code{$seed}}{A \code{numeric} vector of seed values set prior to each
+#'   resampling call to \link[fishboot]{lfqResample}.}
+#' }
 #'
 #' @export
 #'
-ELEFAN_SA_boot <- function(lfq, seasonalised = FALSE,
-  init_par = NULL, low_par = NULL, up_par = NULL,
-  parallel = TRUE, nresamp = 200, no_cores = detectCores() - 1, clusterType = "PSOCK",
-  outfile = "output.txt",
-  SA_time = 60, SA_temp = 1e5, maxit = NULL,
-  MA = 5, addl.sqrt = FALSE, agemax = NULL, flagging.out = TRUE,
-  resample = TRUE, seed = NULL
-){
+#' @examples
+#' # load data
+#' data("alba", package = "TropFishR")
+#'
+#' # Define settings (for demo only, fast settings)
+#' MA       <- 7
+#' low_par   <- list(Linf = 9, K = 0.4, t_anchor = 0.5, C = 0, ts = 0)
+#' up_par    <- list(Linf = 11, K = 0.6, t_anchor = 0.8, C = 1, ts = 1)
+#' init_par <- list(Linf = 10, K = 0.5, t_anchor = 0.6, C = 0.5, ts = 0.5)
+#' SA_time  <- 1.5
+#' SA_temp  <- 1e5
+#' nresamp  <- 2
+#'
+#' # Non-parallel bootstrapped curve fiting
+#' res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
+#'                       init_par = init_par, up_par = up_par, low_par = low_par,
+#'                       SA_time = SA_time, SA_temp = SA_temp,
+#'                       nresamp = nresamp)
+#'
+#' res
+#'
+#' \donttest{
+#' # Define settings (for demo only)
+#' MA       <- 7
+#' low_par  <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
+#' init_par <- list(Linf = 12, K = 0.5, t_anchor = 0.5, C = 0.5, ts = 0.5)
+#' up_par   <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
+#' SA_time  <- 10
+#' SA_temp  <- 1e5
+#' nresamp  <- 12
+#'
+#' # parallel version
+#' res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
+#'                       init_par = init_par, up_par = up_par, low_par = low_par,
+#'                       SA_time = SA_time, SA_temp = SA_temp,
+#'                       nresamp = nresamp,
+#'                       parallel = TRUE)
+#'
+#' res
+#' }
+ELEFAN_SA_boot <- function(lfq,
+                           seasonalised = FALSE,
+                           init_par = list(Linf = 50,
+                                           K = 0.5,
+                                           t_anchor = 0.5,
+                                           C = 0, ts = 0),
+                           low_par = NULL, up_par = NULL,
+                           SA_time = 60 * 1, maxit = NULL,
+                           nb.stop.improvement = NULL,
+                           SA_temp = 1e+05, MA = 5, addl.sqrt = FALSE,
+                           agemax = NULL,
+                           seed = NULL, nresamp = 10, resample = TRUE,
+                           parallel = FALSE, outfile = NA){
 
-  if(!is.null(outfile)){unlink(outfile)} # delete old outfile
+  if(is.null(seed)) seed <- as.numeric(Sys.time())
 
-  if(is.null(seed)){ seed <- round(runif(1, min = 0, max = 1e6))}
+  if(!is.logical(parallel) && !is.integer(parallel)) stop("'parallel' must be logical or integer.")
 
-  if(parallel){ # Parallel version
-    ARGS <- list(
-      "lfqResample",
-      "lfq", "seasonalised",
-      "init_par", "low_par", "up_par",
-      "parallel", "nresamp", "no_cores",
-      "SA_temp", "SA_time", "maxit",
-      "MA", "addl.sqrt", "agemax", "flagging.out",
-      "resample", "seed", "outfile"
-    )
+  no_cores <- if(isTRUE(parallel)) parallel::detectCores() - 2 else pmax(as.integer(parallel), 1)
 
-    parFun <- function(x){
-      set.seed(seed + x)
+  if(no_cores > 1){
 
-      # resample data
-      if(resample){
-        lfqb <- lfqResample(lfq)
-      }else{
-        lfqb <- lfq
-      }
+    # Registering cluster
+    cl <- makeCluster(spec = no_cores)
+    registerDoParallel(cl = cl)
 
-      # call ELEFAN_GA
-      fitboot <- TropFishR::ELEFAN_SA(
-        lfqb, seasonalised = seasonalised,
-        init_par = init_par,
-        low_par = low_par,
-        up_par = up_par,
-        SA_time = SA_time, SA_temp = SA_temp, maxit = maxit,
-        MA = MA, addl.sqrt = addl.sqrt,
-        agemax = agemax, flagging.out = flagging.out,
-        plot.score = FALSE, verbose = FALSE
-      )
-
-      # print output (for checking progress in output.txt)
-      if(!is.null(outfile)){
-        sink(file=outfile, append = TRUE)
-        print(paste("resamp", x, "completed @", Sys.time()))
-        sink()
-      }
-
-      # return result
-      return( c(unlist(fitboot$par), seed + x) )
+    # Run multithread process
+    res <- foreach(x = seq(nresamp), .inorder = FALSE, .packages = "TropFishR") %dopar% {
+      lfq_ELEFAN_SA(lfq = lfq, x = x, resample = resample, seed = seed,
+                    seasonalised = seasonalised,
+                    init_par = init_par,
+                    low_par = low_par, up_par = up_par,
+                    SA_time = SA_time, maxit = maxit,
+                    nb.stop.improvement = nb.stop.improvement,
+                    SA_temp = SA_temp, MA = MA, addl.sqrt = addl.sqrt,
+                    agemax = agemax)
     }
 
-    cl <- parallel::makeCluster(no_cores, type=clusterType)
-    nn <- split(1:nresamp, 1:nresamp)
-    parallel::clusterExport(cl, varlist = ARGS, envir=environment())
-    res <- parallel::parLapply(cl, nn, parFun)
-    parallel::stopCluster(cl)
-  }
+    # Finish cluster
+    stopCluster(cl)
+  }else{
 
-  if(!parallel){ # Non-parallel version
-    res <- vector("list", nresamp) # empty results list
-    for(x in seq(res)){
-      set.seed(x + seed)
+    # Empty results list
+    res <- vector(mode = "list", length = nresamp)
 
-      # resample data
-      if(resample){
-        lfqb <- lfqResample(lfq)
-      }else{
-        lfqb <- lfq
-      }
-
-      # call ELEFAN_GA
-      fitboot <- TropFishR::ELEFAN_SA(
-        lfqb, seasonalised = seasonalised,
-        init_par = init_par,
-        low_par = low_par,
-        up_par = up_par,
-        SA_time = SA_time, SA_temp = SA_temp, maxit = maxit,
-        MA = MA, addl.sqrt = addl.sqrt,
-        agemax = agemax, flagging.out = flagging.out,
-        plot.score = FALSE, verbose = FALSE
-      )
-
-      if(!is.null(outfile)){
-        sink(file=outfile, append = TRUE)
-        print(paste("resamp", x, "completed @", Sys.time()))
-        sink()
-      }
-
-      # return result
-      res[[x]] <- c(unlist(fitboot$par), seed + x)
+    for(x in seq(nresamp)){
+      res[[x]] <- lfq_ELEFAN_SA(lfq = lfq, x = x,
+                                resample = resample, seed = seed,
+                                seasonalised = seasonalised,
+                                init_par = init_par,
+                                low_par = low_par, up_par = up_par,
+                                SA_time = SA_time, maxit = maxit,
+                                nb.stop.improvement = nb.stop.improvement,
+                                SA_temp = SA_temp, MA = MA,
+                                addl.sqrt = addl.sqrt, agemax = agemax)
     }
-
   }
 
-  tmp0 <- as.data.frame(do.call("rbind", res))
-  tmp <- tmp0[,-ncol(tmp0)]
+  # Combine results into a data.frame
+  res <- do.call(what = rbind, args = res) |> as.data.frame()
 
-  ret <- list()
-  ret$bootRaw <- tmp
-  ret$seed <- as.numeric(tmp0[,ncol(tmp0)])
-  class(ret) <- "lfqBoot"
+  # Build output structure
+  res <- list(bootRaw = res[,-ncol(res)],
+              seed = res$seed)
 
-  return(ret)
+  # Set class of output object
+  class(res) <- "lfqBoot"
 
+  res
 }
 
+
+# Engine function
+lfq_ELEFAN_SA <- function(lfq, x, resample, seed,
+                          seasonalised, init_par, low_par, up_par, SA_time,
+                          maxit, nb.stop.improvement, SA_temp, MA, addl.sqrt,
+                          agemax){
+
+  seed <- seed + x
+  set.seed(seed)
+
+  # resample data
+  if(resample){
+    lfqb <- lfqResample(lfq = lfq)
+  }else{
+    lfqb <- lfq
+  }
+
+  fitboot <- ELEFAN_SA(lfq = lfqb,
+                       seasonalised = seasonalised,
+                       init_par = init_par,
+                       low_par = low_par, up_par = up_par,
+                       SA_time = SA_time, maxit = maxit,
+                       nb.stop.improvement = nb.stop.improvement,
+                       SA_temp = SA_temp, MA = MA, addl.sqrt = addl.sqrt,
+                       agemax = agemax,
+                       flagging.out = FALSE, plot = FALSE, plot.score = FALSE,
+                       verbose = FALSE)
+
+  # return result
+  c(unlist(fitboot$par), seed = seed)
+}

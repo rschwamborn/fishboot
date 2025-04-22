@@ -2,84 +2,99 @@
 % Please edit documentation in R/LinfK_scatterhist.R
 \name{LinfK_scatterhist}
 \alias{LinfK_scatterhist}
-\title{Link/K scatterplot of bootstrapping results}
+\title{Linf/K scatterplot of bootstrapping results}
 \usage{
-LinfK_scatterhist(res, Linf.breaks = "Sturges", K.breaks = "Sturges",
-  gridsize = rep(151, 2), H = NULL, shading = TRUE,
-  shading.cols = colorRampPalette(c("white", blues9))(50),
-  dens.contour = TRUE, probs = c(25, 50, 75, 95),
-  phi.contour = FALSE, phi.levels = NULL, phi.contour.col = 8,
-  phi.contour.lty = 2, phi.contour.lwd = 1,
-  phi.contour.labcex = 0.75, pt.pch = 16, pt.col = adjustcolor(1,
-  0.25), pt.cex = 0.5, pt.bg = 4,
+LinfK_scatterhist(
+  res,
+  Linf.breaks = "Sturges",
+  K.breaks = "Sturges",
+  gridsize = rep(151, 2),
+  H = NULL,
+  shading = TRUE,
+  shading.cols = NULL,
+  dens.contour = TRUE,
+  probs = c(25, 50, 75, 95),
+  phi.contour = TRUE,
+  phi.levels = NULL,
+  phi.contour.col = 8,
+  phi.contour.lty = 2,
+  phi.contour.lwd = 1,
+  phi.contour.labcex = 0.75,
+  pt.pch = 16,
+  pt.col = adjustcolor(1, 0.25),
+  pt.cex = 0.5,
+  pt.bg = 4,
   xlab = expression(italic("L")[infinity]),
-  ylab = expression(italic("K")), xlim = NULL, ylim = NULL)
+  ylab = expression(italic("K")),
+  ...
+)
 }
 \arguments{
-\item{res}{list of class `lfqBoot`}
+\item{res}{Object of class \code{data.frame}, \code{tbl_df}, \code{lfqBoot}
+or \code{grotagBoot}.}
 
-\item{Linf.breaks}{vector. Breaks for Linf histogram.}
+\item{Linf.breaks, K.breaks}{Arguments passed to \link[graphics]{hist}
+function to compute the breakpoints (argument \code{breaks}) for Linf and K
+histograms respectively.}
 
-\item{K.breaks}{vector. Breaks for K histogram.}
+\item{gridsize}{\code{numeric} 2-length vector specifying the resolution of
+the grid.}
 
-\item{gridsize}{vector. 2 values for defining the resolution of the grid}
+\item{H}{Plug-in bandwidth object from \code{\link[ks]{Hpi}} (Default:
+\code{H = ks::Hpi(res[,c("Linf", "K")])})}
 
-\item{H}{object from \code{\link[ks]{Hpi}} (Default: `H = ks::Hpi(res[,c("Linf", "K")])`)}
+\item{shading}{\code{logical}. Do you want to colour 2D field of density
+estimates? (Default \code{TRUE})}
 
-\item{shading}{logical. Should 2d field of density estimates be colored with colors
-specified by `shading.cols` argument (Default: `shading = TRUE`).}
+\item{shading.cols}{Colors or color palette used for background shading of 2D
+field of density estimates. No considered if \code{shading = FALSE}.}
 
-\item{shading.cols}{vector. Colors for background shading of 2d field of density estimates
-(Default: `shading.cols = colorRampPalette(c("white", blues9))(50)`).}
+\item{dens.contour}{\code{logical}. Do you want to add contour lines?
+(\code{TRUE} by default).}
 
-\item{dens.contour}{logical. Should contour lines be added (Default: `dens.contour = TRUE`)}
+\item{probs}{\code{numeric} Density probability cutoffs (in %) to be plotted
+by contours. By default \code{probs = c(25, 50, 75, 95)} and not considered
+if \code{dens.contour = FALSE}.}
 
-\item{probs}{vector. Density probability cutoffs to be plotted by contours when
-`dens.contour = TRUE` (Default: `probs = c(25,50,75,95)`).}
+\item{phi.contour}{\code{logical}. Do you want to display phi prime isolines?
+(\code{FALSE} by default)}
 
-\item{phi.contour}{logical. Should phi prime isolines be displayed
-(Default: `phi.contour = FALSE`)}
+\item{phi.levels}{\code{numeric} vector that controls Phi prime values.
+Omitted if \code{phi.contour = FALSE} and if \code{NULL} values will be
+chosen automatically by the \link[graphics]{contour} function.}
 
-\item{phi.levels}{vector. Phi prime values to display when `phi.contour = TRUE`
-(Default: `phi.levels = NULL`). When not defined (`phi.levels = NULL`), the default
-levels are chosen automatically by the \code{\link[graphics]{contour}} function.}
+\item{phi.contour.col, phi.contour.lty, phi.contour.lwd, phi.contour.labcex}{Extra
+arguments used to control the color, line type, line width and labels size of
+the phi prime contour isolines.}
 
-\item{phi.contour.col}{vector. Color to use for phi prime contours.
-Passed to \code{\link[graphics]{contour}}.}
+\item{pt.pch, pt.col, pt.cex, pt.bg}{Extra arguments to control type, color,
+size and background color of resampling points.}
 
-\item{phi.contour.lty}{vector. Line type to use for phi prime contours.
-Passed to \code{\link[graphics]{contour}}.}
+\item{xlab, ylab}{Labels for X and Y axis respectively.}
 
-\item{phi.contour.lwd}{vector. Line width to use for phi prime contours.
-Passed to \code{\link[graphics]{contour}}.}
-
-\item{phi.contour.labcex}{vector. Labels for the contour lines.
-Passed to \code{\link[graphics]{contour}}.}
-
-\item{pt.pch}{pch value to use for resampling points}
-
-\item{pt.col}{color to use for resampling points}
-
-\item{pt.cex}{size value to use for resampling points}
-
-\item{pt.bg}{background color to use for resampling points}
-
-\item{xlab}{label for x-axis}
-
-\item{ylab}{lavel for y axis}
-
-\item{xlim}{limits for x-axis}
-
-\item{ylim}{limits for y-axis}
+\item{...}{Extra arguments passed to main plot function.}
 }
 \value{
-plot
+This function returns just the described plot.
 }
 \description{
-Link/K scatterplot of bootstrapping results
+This function plots a scatterplot of von Bertalanffy growth function
+parameters \eqn{K} vs \eqn{L_{inf}} (“Kimura plot”)  with histograms.
+}
+\details{
+Isolines of growth performance (\eqn{Phi’}) can be plotted, as well as
+bivariate 95% (and 25%, 50%, and 75%) confidence contour envelopes. The input
+used for plotting is usually the result of a bootstrapped growth analysis
+(i.e. a \code{lfqBoot} object generated by \strong{fishboot} functions such
+as \link{ELEFAN_SA_boot}, \link{ELEFAN_GA_boot}, \link{grotag_boot}, or
+\link{grolenage_boot}).
+
+If NULL, it will be defined as \code{colorRampPalette(c("white", blues9))(1e3)}.
 }
 \examples{
-data(alba_boot)
-LinfK_scatterhist(alba_boot)
+data(alba_boot) # lfqBoot object
+LinfK_scatterhist(res = alba_boot)
 
+data(bonito_boot) # grotagBoot object
+LinfK_scatterhist(res = bonito_boot)
 }

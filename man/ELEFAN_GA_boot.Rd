@@ -2,18 +2,33 @@
 % Please edit documentation in R/ELEFAN_GA_boot.R
 \name{ELEFAN_GA_boot}
 \alias{ELEFAN_GA_boot}
-\title{Bootstrapped ELEFAN_GA}
+\title{Bootstraped ELEFAN_GA}
 \usage{
-ELEFAN_GA_boot(lfq, seasonalised = FALSE, low_par = NULL,
-  up_par = NULL, parallel = TRUE, nresamp = 200,
-  no_cores = detectCores() - 1, clusterType = "PSOCK",
-  outfile = "output.txt", popSize = 60, maxiter = 50, run = 200,
-  pmutation = 0.2, pcrossover = 0.8, elitism = base::max(1,
-  round(popSize * 0.05)), MA = 5, addl.sqrt = FALSE, agemax = NULL,
-  flagging.out = TRUE, resample = TRUE, seed = NULL)
+ELEFAN_GA_boot(
+  lfq,
+  seasonalised = FALSE,
+  low_par = NULL,
+  up_par = NULL,
+  popSize = 50,
+  maxiter = 100,
+  run = maxiter,
+  parallel = FALSE,
+  pmutation = 0.1,
+  pcrossover = 0.8,
+  elitism = base::max(1, round(popSize * 0.05)),
+  MA = 5,
+  addl.sqrt = FALSE,
+  agemax = NULL,
+  ...,
+  seed = NULL,
+  nresamp = 10,
+  resample = TRUE,
+  outfile = NA
+)
 }
 \arguments{
-\item{lfq}{a length frequency object of the class `lfq`}
+\item{lfq}{a length frequency object of the class \code{lfq} (see
+\link[TropFishR]{lfqCreate}).}
 
 \item{seasonalised}{logical; indicating if the seasonalised von Bertalanffy
 growth function should be applied (default: FALSE).}
@@ -21,12 +36,12 @@ growth function should be applied (default: FALSE).}
 \item{low_par}{a list providing the minimum of the search space in case
 of real-valued or permutation encoded optimizations. When set to NULL the
 following default values are used:
- \itemize{
+\itemize{
   \item \strong{Linf} length infinity in cm (default is calculated from maximum
   length class in the data),
   \item \strong{K} curving coefficient (default: 0.01),
   \item \strong{t_anchor} time point anchoring growth curves in year-length
-  coordinate system, corrsponds to peak spawning month (range: 0 to 1, default: 0),
+  coordinate system, corresponds to peak spawning month (range: 0 to 1, default: 0),
   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 0),
   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 0);
 }}
@@ -34,124 +49,164 @@ following default values are used:
 \item{up_par}{a list providing the maximum of the search space in case of
 real-valued or permutation encoded optimizations. When set to NULL the
 following default values are used:
- \itemize{
+\itemize{
   \item \strong{Linf} length infinity in cm (default is calculated from maximum
   length class in the data),
   \item \strong{K} curving coefficient (default: 1),
   \item \strong{t_anchor} time point anchoring growth curves in year-length
-  coordinate system, corrsponds to peak spawning month (range: 0 to 1, default: 1),
+  coordinate system, corresponds to peak spawning month (range: 0 to 1, default: 1),
   \item \strong{C} amplitude of growth oscillation (range: 0 to 1, default: 1),
   \item \strong{ts} summer point (ts = WP - 0.5) (range: 0 to 1, default: 1);
 }}
 
-\item{parallel}{logical; should parallelized computing be used. This differs from the
-`parallel` argument in \code{\link[TropFishR]{ELEFAN_GA}} in that it is not used
-within the \code{\link[GA]{ga}} function for calculation at the population level,
-but rather for each resampling. Depending on platform operating system,
-the argument `clusterType` can be adjusted (see argument description for
-details). (Default: `parallel = TRUE`)}
+\item{popSize}{the population size. Default: 50}
 
-\item{nresamp}{numeric; the number of permutations to run (Default: `nresamp = 200`)}
-
-\item{no_cores}{numeric (Default: `no_cores = detectCores() - 1`)}
-
-\item{clusterType}{(Default: `clusterType = "PSOCK"`)}
-
-\item{outfile}{character; text file name (Default: `outfile = "output.txt"`) which will
-records the progress of the permutation completions.}
-
-\item{popSize}{the population size. (Default: `popSize = 60`)}
-
-\item{maxiter}{the maximum number of iterations to run before the GA search is halted.
-(Default: `maxiter = 50`)}
+\item{maxiter}{the maximum number of iterations to run before the
+GA search is halted. default:100}
 
 \item{run}{the number of consecutive generations without any improvement
-in the best fitness value before the GA is stopped. (Default: `run = 10`)}
+in the best fitness value before the GA is stopped. Default: equals
+\code{maxiter}.}
 
-\item{pmutation}{numeric. A small fraction of 1.0. The probability of mutation in a
-parent chromosome. Usually mutation occurs with a small probability.
-(Default: `pmutation = 0.2`)}
+\item{parallel}{Whether a \code{logical} or \code{integer} argument
+specifying the configuration of parallel computing. See \code{\link[GA]{ga}}
+for details.}
+
+\item{pmutation}{the probability of mutation in a parent chromosome.
+Usually mutation occurs with a small probability, and by default is set to 0.1.}
 
 \item{pcrossover}{the probability of crossover between pairs of chromosomes.
-Typically this is a large value.  (Default: `pcrossover = 0.8`)}
+Typically this is a large value and by default is set to 0.8.}
 
 \item{elitism}{the number of best fitness individuals to survive at each generation.
 By default the top 5\% individuals will survive at each iteration.}
 
 \item{MA}{number indicating over how many length classes the moving average
-should be performed (default: 5, for more information see \code{\link[TropFishR]{lfqRestructure}}}
+should be performed (default: 5, for
+   more information see \link[TropFishR]{lfqRestructure})}
 
-\item{addl.sqrt}{logical. Should counts be square root transformed prior to restructuring.}
+\item{addl.sqrt}{additional square root transformation of positive values
+according to Brey et al. (1988) (default: FALSE, for
+   more information see \link[TropFishR]{lfqRestructure})}
 
-\item{agemax}{numeric. maximum age}
+\item{agemax}{maximum age of species; default \code{NULL}, then estimated
+from \eqn{L_{inf}}.}
 
-\item{flagging.out}{logical Should flagging out be done}
+\item{...}{additional parameters to pass to \code{\link[GA]{ga}}.}
 
-\item{resample}{logical. Should `lfq` object be resampled (Default: `resample = TRUE`).
-When `resample = FALSE`, a `partial bootstrap` is performed, reflecting solution
-variation due only to the search algorithm.}
+\item{seed}{seed value for random number reproducibility.}
 
-\item{seed}{seed value for random number reproducibility (Default: NULL)}
+\item{nresamp}{\code{numeric}, the number of permutations to run (by default
+\code{nresamp = 10}).}
+
+\item{resample}{\code{logical}. Do you want that \code{lfq} object be
+resampled (\code{TRUE} by default).}
+
+\item{outfile}{\code{character}; path of the file which will register the
+progress of the permutation completions. If it is set as \code{false},
+\code{NA} or \code{NULL}, no file will be created.}
 }
 \value{
-a list of class `lfqBoot` containing 2 levels: `$bootRaw` - a data.frame of fitted VBGF parameters
-(columns) by resampling (rows), `$seed` - a vector of seed values set prior to each resampling
-call to `lfqResample`.
+An object of class \code{lfqBoot} containing 2 levels:
+\describe{
+  \item{\code{$bootRaw}}{A \code{data.frame} of fitted VBGF parameters
+  (columns) by resampling (rows).}
+  \item{\code{$seed}}{A \code{numeric} vector of seed values set prior to each
+  resampling call to \link[fishboot]{lfqResample}.}
+}
 }
 \description{
-`ELEFAN_GA_boot` performs a bootstrapped fitting of
-  von Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_GA}} function.
-  Most of the arguments are simply passed to the function within many permutations
-  (resampling) of the original lfq data.
+This function performs a bootstrapped fitting of a von
+Bertalanffy growth function (VBGF) via the \code{\link[TropFishR]{ELEFAN_GA}}
+function. Most of the arguments are simply passed to the function within many
+permutations (resampling) of the original \code{lfq} data. As the original
+function, \code{ELEFAN_GA} also conducts Electronic LEngth Frequency ANalysis
+using a genetic algorithm (GA) to estimate growth parameters. Partial
+(repeated fitting on original data) and full bootstrap (with resampling)
+routines are possible, depending on \code{resample}.
+}
+\details{
+If \code{resample = TRUE}, a \strong{full non-parametric bootstrap} is
+performed with resampling from the original length-frequencies by using the
+function \link{lfqResample}. Otherwise, if \code{resample = FALSE}, a partial
+bootstrap is performed, reflecting solution variation due only to the search
+algorithm, with repeated fitting to the original data (no resampling is
+performed).
 }
 \examples{
-\donttest{
 # load data
-library(TropFishR)
-data(alba)
+data("alba", package = "TropFishR")
 
-# settings (these settings may not be optimal - for demo only)
-MA <- 7
-low_par <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
-up_par <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
-popSize <- 60
-maxiter <- 50
-run <- 10
+# Define settings (for demo only, fast settings)
+MA        <- 7
+low_par   <- list(Linf = 9, K = 0.4, t_anchor = 0.5, C = 0, ts = 0)
+up_par    <- list(Linf = 11, K = 0.6, t_anchor = 0.8, C = 1, ts = 1)
+popSize   <- 12
+maxiter   <- 5
+run       <- 4
+pmutation <- 0.1
+nresamp   <-  2
+
+# Non-parallel version
+res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
+                      up_par = up_par, low_par = low_par,
+                      parallel = FALSE,
+                      popSize = popSize, maxiter = maxiter,
+                      run = run, pmutation = pmutation,
+                      nresamp = nresamp)
+
+res
+
+
+\donttest{
+# Define settings (for demo only)
+MA        <- 7
+low_par   <- list(Linf = 8, K = 0.2, t_anchor = 0, C = 0, ts = 0)
+up_par    <- list(Linf = 12, K = 0.9, t_anchor = 1, C = 1, ts = 1)
+popSize   <- 40
+maxiter   <- 30
+run       <- 10
 pmutation <- 0.2
-nresamp <- 12
+nresamp   <-  3
 
+# Parallel version
+res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
+                      up_par = up_par, low_par = low_par,
+                      parallel = TRUE,
+                      popSize = popSize, maxiter = maxiter,
+                      run = run, pmutation = pmutation,
+                      nresamp = nresamp)
 
-# parallel version
-library(parallel)
-t1 <- Sys.time()
-res <- ELEFAN_GA_boot(lfq=alba, MA = MA, seasonalised = FALSE,
-  up_par = up_par, low_par = low_par,
-  popSize = popSize, maxiter = maxiter, run = run, pmutation = pmutation,
-  nresamp = nresamp, parallel = TRUE, no_cores = detectCores()-1,
-  seed = 1
-)
-t2 <- Sys.time()
-t2 - t1
 res
-
-
-# non-parallel version
-t1 <- Sys.time()
-res <- ELEFAN_GA_boot(lfq=alba, seasonalised = FALSE,
-  up_par = up_par, low_par = low_par,
-  popSize = popSize, maxiter = maxiter, run = run,
-  pmutation = pmutation, nresamp = nresamp, MA = MA, parallel = FALSE,
-  seed = 1
-)
-t2 <- Sys.time()
-t2 - t1
-res
-
-# plot resulting distributions
-univariate_density(res, use_hist = TRUE)
-
-# plot scatterhist of Linf and K
-LinfK_scatterhist(res)
 }
-
+}
+\references{
+\itemize{
+ \item Brey, T., Soriano, M., and Pauly, D. 1988. Electronic length frequency
+analysis: a revised and expanded user's guide to ELEFAN 0, 1 and 2.
+ \item Efron, B., & Tibshirani, R. (1986). Bootstrap methods for standard
+errors, confidence intervals, and other measures of statistical accuracy.
+Statistical Science, 54-75.
+ \item Mildenberger, T., Taylor, M. H., & Wolff, A. M., 2017. TropFishR: an R
+package for fisheries analysis with length-frequency data. Methods in Ecology
+and Evolution, 8(11), 1520-1527.
+ \item Pauly, D. 1981. The relationship between gill surface area and growth
+performance in fish: a generalization of von Bertalanffy's theory of growth.
+Meeresforsch. 28:205-211.
+ \item Pauly, D. and N. David, 1981. ELEFAN I, a BASIC program for the
+objective extraction of growth parameters from length-frequency data.
+Meeresforschung, 28(4):205-211.
+ \item Schwamborn, R., Mildenberger, T. K., & Taylor, M. H., 2019. Assessing
+sources of uncertainty in length-based estimates of body growth in
+populations of fishes and macroinvertebrates with bootstrapped ELEFAN.
+Ecological Modelling, 393, 37-51.
+ \item Schwamborn, R., Freitas, M. O., Moura, R. L., & Aschenbrenner, A. 2023.
+Comparing the accuracy and precision of novel bootstrapped length-frequency
+and length-at-age (otolith) analyses, with a case study of lane snapper
+(\emph{Lutjanus synagris}) in the SW Atlantic. Fisheries Research, 264, 106735.
+ \item Scrucca, L., 2013. GA: a package for genetic algorithms in R. Journal
+of Statistical Software, 53(4), 1-37.
+ \item von Bertalanffy, L., 1938. A quantitative theory of organic growth.
+Human Biology 10, 181-213.
+}
 }

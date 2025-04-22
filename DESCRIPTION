@@ -1,25 +1,50 @@
 Package: fishboot
 Type: Package
-Title: Bootstrap-based methods for the study of fish stocks and aquatic populations
-Version: 0.1
-Date: 2018-06-26
-Author: Ralf Schwamborn, Tobias K. Mildenberger, Marc H. Taylor
-Maintainer: Ralf Schwamborn <rs@ufpe.br>
-Description: The fishboot package contains a suite of new bootstrap-based models and software tools for the study of fish stocks and aquatic populations. 
-Depends: R (>= 3.4.2)
+Title: Bootstrap-Based Methods for the Study of Fish Stocks and Aquatic Populations
+Version: 1.0.0
+Date: 2025-04-17
+Authors@R: c(
+  person("Ralf", "Schwamborn", 
+    role = c("aut", "cre"), 
+    email = "ralf.schwamborn@ufpe.br",
+    comment = c(ORCID = "0000-0001-9150-8720")),
+  person("Tobias K.", "Mildenberger", 
+    role = c("aut"), 
+    email = "tobm@aqua.dtu.dk"),
+  person("Marc H.", "Taylor", 
+    role = c("aut"), 
+    email = "marc.taylor@thuenen.de"),
+  person("Margit", "Wilhelm", 
+    role = c("aut"), 
+    email = "mwilhelm@unam.na",
+    comment = c(ORCID = "0000-0001-9271-2109")),
+  person("Wencheng", "Lau-Medrano", 
+    role = c("ctb"), 
+    email = "luis.laum@gmail.com",
+    comment = c(ORCID = "0000-0002-7979-9710"))
+  )
+Description: A suite of bootstrap-based models and tools for analyzing fish 
+  stocks and aquatic populations. Designed for ecologists and fisheries 
+  scientists, it supports data from length-frequency distributions, 
+  tag-and-recapture studies, and hard structure readings (e.g., otoliths). 
+  See Schwamborn et al., 2019 <doi:10.1016/j.ecolmodel.2018.12.001> 
+  for background. The package includes functions for bootstrapped fitting of 
+  growth curves and plotting. 
+Depends: R (>= 4.1.0)
 Imports:
-    TropFishR,
-    GenSA,
-    GA,
-    propagate,
-    parallel,
     doParallel,
-    WRS2,
+    parallel,
+    foreach,
+    grDevices,
+    graphics,
+    stats,
+    utils,
     ks,
+    TropFishR,
     fishmethods
 License: GPL-3
 BugReports: https://github.com/rschwamborn/fishboot/issues
 URL: https://github.com/rschwamborn/fishboot
 Encoding: UTF-8
-LazyData: FALSE
-RoxygenNote: 6.1.0
+LazyData: true
+RoxygenNote: 7.3.2
