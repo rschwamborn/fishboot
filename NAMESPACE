@@ -8,44 +8,60 @@ export(grotag_boot)
 export(lfqResample)
 export(univariate_density)
 export(vbgfCI_time)
-importFrom(TropFishR,ELEFAN_GA)
-importFrom(TropFishR,ELEFAN_SA)
-importFrom(TropFishR,VBGF)
-importFrom(TropFishR,growth_length_age)
-importFrom(TropFishR,lfqRestructure)
+importFrom(TropFishR,
+  ELEFAN_GA,
+  ELEFAN_SA,
+  VBGF,
+  growth_length_age,
+  lfqRestructure
+)
 importFrom(doParallel,registerDoParallel)
 importFrom(fishmethods,grotag)
-importFrom(foreach,"%dopar%")
-importFrom(foreach,foreach)
-importFrom(grDevices,adjustcolor)
-importFrom(grDevices,blues9)
-importFrom(grDevices,colorRampPalette)
-importFrom(grDevices,dev.off)
-importFrom(grDevices,rgb)
-importFrom(graphics,abline)
-importFrom(graphics,box)
-importFrom(graphics,contour)
-importFrom(graphics,hist)
-importFrom(graphics,image)
-importFrom(graphics,layout)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,mtext)
-importFrom(graphics,par)
-importFrom(graphics,points)
-importFrom(graphics,polygon)
-importFrom(graphics,rect)
-importFrom(graphics,segments)
-importFrom(graphics,text)
-importFrom(ks,Hpi)
-importFrom(ks,kde)
-importFrom(parallel,makeCluster)
-importFrom(parallel,stopCluster)
-importFrom(stats,complete.cases)
-importFrom(stats,cov)
-importFrom(stats,quantile)
-importFrom(stats,rnorm)
-importFrom(stats,runif)
-importFrom(stats,setNames)
-importFrom(utils,modifyList)
-importFrom(utils,stack)
+importFrom(foreach,
+  "%dopar%",
+  foreach
+)
+importFrom(grDevices,
+  adjustcolor,
+  blues9,
+  colorRampPalette,
+  dev.off,
+  rgb
+)
+importFrom(graphics,
+  abline,
+  box,
+  contour,
+  hist,
+  image,
+  layout,
+  legend,
+  lines,
+  mtext,
+  par,
+  points,
+  polygon,
+  rect,
+  segments,
+  text
+)
+importFrom(ks,
+  Hpi,
+  kde
+)
+importFrom(parallel,
+  makeCluster,
+  stopCluster
+)
+importFrom(stats,
+  complete.cases,
+  cov,
+  quantile,
+  rnorm,
+  runif,
+  setNames
+)
+importFrom(utils,
+  modifyList,
+  stack
+)

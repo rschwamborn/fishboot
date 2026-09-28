@@ -18,18 +18,15 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Ralf Schwamborn \email{ralf.schwamborn@ufpe.br} (\href{https://orcid.org/0000-0001-9150-8720}{ORCID})
+\strong{Maintainer}: Wencheng Lau-Medrano \email{luis.laum@gmail.com} (\href{https://orcid.org/0000-0002-7979-9710}{ORCID})
 
 Authors:
 \itemize{
+  \item Wencheng Lau-Medrano \email{luis.laum@gmail.com} (\href{https://orcid.org/0000-0002-7979-9710}{ORCID})
+  \item Ralf Schwamborn \email{ralf.schwamborn@ufpe.br} (\href{https://orcid.org/0000-0001-9150-8720}{ORCID})
   \item Tobias K. Mildenberger \email{tobm@aqua.dtu.dk}
   \item Marc H. Taylor \email{marc.taylor@thuenen.de}
   \item Margit Wilhelm \email{mwilhelm@unam.na} (\href{https://orcid.org/0000-0001-9271-2109}{ORCID})
-}
-
-Other contributors:
-\itemize{
-  \item Wencheng Lau-Medrano \email{luis.laum@gmail.com} (\href{https://orcid.org/0000-0002-7979-9710}{ORCID}) [contributor]
 }
 
 }

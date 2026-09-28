@@ -1,11 +1,11 @@
 Package: fishboot
 Type: Package
 Title: Bootstrap-Based Methods for the Study of Fish Stocks and Aquatic Populations
-Version: 1.0.0
-Date: 2025-04-17
+Version: 1.0.3
+Date: 2026-09-28
 Authors@R: c(
   person("Ralf", "Schwamborn", 
-    role = c("aut", "cre"), 
+    role = c("aut"), 
     email = "ralf.schwamborn@ufpe.br",
     comment = c(ORCID = "0000-0001-9150-8720")),
   person("Tobias K.", "Mildenberger", 
@@ -19,7 +19,7 @@ Authors@R: c(
     email = "mwilhelm@unam.na",
     comment = c(ORCID = "0000-0001-9271-2109")),
   person("Wencheng", "Lau-Medrano", 
-    role = c("ctb"), 
+    role = c("aut", "cre"), 
     email = "luis.laum@gmail.com",
     comment = c(ORCID = "0000-0002-7979-9710"))
   )
@@ -27,9 +27,9 @@ Description: A suite of bootstrap-based models and tools for analyzing fish
   stocks and aquatic populations. Designed for ecologists and fisheries 
   scientists, it supports data from length-frequency distributions, 
   tag-and-recapture studies, and hard structure readings (e.g., otoliths). 
-  See Schwamborn et al., 2019 <doi:10.1016/j.ecolmodel.2018.12.001> 
+  See Schwamborn et al., 2019 <doi.org/10.1016/j.ecolmodel.2018.12.001> 
   for background. The package includes functions for bootstrapped fitting of 
-  growth curves and plotting. 
+  growth curves and plotting.
 Depends: R (>= 4.1.0)
 Imports:
     doParallel,
@@ -47,4 +47,4 @@ BugReports: https://github.com/rschwamborn/fishboot/issues
 URL: https://github.com/rschwamborn/fishboot
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+Config/roxygen2/version: 8.1.0

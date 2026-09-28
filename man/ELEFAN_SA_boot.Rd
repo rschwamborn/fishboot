@@ -153,26 +153,6 @@ res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
                       nresamp = nresamp)
 
 res
-
-\donttest{
-# Define settings (for demo only)
-MA       <- 7
-low_par  <- list(Linf = 8, K = 0.1, t_anchor = 0, C = 0, ts = 0)
-init_par <- list(Linf = 12, K = 0.5, t_anchor = 0.5, C = 0.5, ts = 0.5)
-up_par   <- list(Linf = 15, K = 5, t_anchor = 1, C = 1, ts = 1)
-SA_time  <- 10
-SA_temp  <- 1e5
-nresamp  <- 12
-
-# parallel version
-res <- ELEFAN_SA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
-                      init_par = init_par, up_par = up_par, low_par = low_par,
-                      SA_time = SA_time, SA_temp = SA_temp,
-                      nresamp = nresamp,
-                      parallel = TRUE)
-
-res
-}
 }
 \references{
 \itemize{

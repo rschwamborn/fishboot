@@ -156,29 +156,6 @@ res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
                       nresamp = nresamp)
 
 res
-
-
-\donttest{
-# Define settings (for demo only)
-MA        <- 7
-low_par   <- list(Linf = 8, K = 0.2, t_anchor = 0, C = 0, ts = 0)
-up_par    <- list(Linf = 12, K = 0.9, t_anchor = 1, C = 1, ts = 1)
-popSize   <- 40
-maxiter   <- 30
-run       <- 10
-pmutation <- 0.2
-nresamp   <-  3
-
-# Parallel version
-res <- ELEFAN_GA_boot(lfq = alba, MA = MA, seasonalised = FALSE,
-                      up_par = up_par, low_par = low_par,
-                      parallel = TRUE,
-                      popSize = popSize, maxiter = maxiter,
-                      run = run, pmutation = pmutation,
-                      nresamp = nresamp)
-
-res
-}
 }
 \references{
 \itemize{

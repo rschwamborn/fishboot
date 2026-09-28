@@ -1,8 +1,10 @@
-### fishboot 1.0.0 (2024-10-23)
+### fishboot 1.0.3 (2026-09-28)
+
+- Minor corrections in order to accomplish CRAN policies.
 
 ---
 
-#### New features
+### fishboot 1.0.0 (2024-10-23)
 
 - Available on CRAN now!
 - New functions: `grolenage_boot` and `grotag_boot`.
