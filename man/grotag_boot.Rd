@@ -152,29 +152,35 @@ referential and may be insufficient due to the factors mentioned above.
 data(bonito, package = "fishmethods")
 
 # Run the example cited on ?grotag
-fishmethods::grotag(L1 = bonito$L1,
-                    L2 = bonito$L2,
-                    T1 = bonito$T1,
-                    T2 = bonito$T2,
-                    alpha   = 35, beta = 55,
-                    design  = list(nu = 1, m = 1,p = 1, sea = 1),
-                    stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
-                    upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
-                    lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
-                    control = list(maxit = 1e4))
+fishmethods::grotag(
+  L1 = bonito$L1,
+  L2 = bonito$L2,
+  T1 = bonito$T1,
+  T2 = bonito$T2,
+  alpha   = 35, beta = 55,
+  design  = list(nu = 1, m = 1,p = 1, sea = 1),
+  stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
+  upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
+  lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
+  control = list(maxit = 1e4)
+)
 
 # Run the example using grotag_boot
-res <- grotag_boot(L1 = bonito$L1,
-                   L2 = bonito$L2,
-                   T1 = bonito$T1,
-                   T2 = bonito$T2,
-                   alpha   = 35, beta = 55,
-                   design  = list(nu = 1, m = 1,p = 1, sea = 1),
-                   stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
-                   upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
-                   lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
-                   control = list(maxit = 1e4),
-                   nresamp = 3, na_action = "narm")
+res <- grotag_boot(
+  L1 = bonito$L1,
+  L2 = bonito$L2,
+  T1 = bonito$T1,
+  T2 = bonito$T2,
+  alpha   = 35, beta = 55,
+  design  = list(nu = 1, m = 1,p = 1, sea = 1),
+  stvalue = list(sigma = 0.9, nu = 0.4, m = -1, p = 0.2, u = 0.4, w = 0.4),
+  upper   = list(sigma = 5, nu = 1, m = 2, p = 0.5, u = 1, w = 1),
+  lower   = list(sigma = 0, nu = 0, m = -2, p = 0.0, u = 0, w = 0),
+  control = list(maxit = 1e4),
+  seed = 18,
+  nresamp = 3,
+  na_action = "narm"
+)
 
 res
 }
