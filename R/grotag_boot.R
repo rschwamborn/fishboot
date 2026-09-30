@@ -232,7 +232,10 @@ grotag_boot <- function(L1 = NULL, L2 = NULL, T1 = NULL, T2 = NULL,
                       st.gb = st.gb, st.galow = st.galow,
                       st.gaup = st.gaup, st.gblow = st.gblow,
                       st.gbup = st.gbup, control = control)
-    }, error = \(e){NULL}) |> suppressWarnings()
+    }, error = \(e){
+      message("ERROR in boot ", x, ": ", conditionMessage(e))
+      stop(e)
+    }) |> suppressWarnings()
 
     # If result is not NULL or if the na_action is set as 'nothing'
     outnull <- is.null(out)
